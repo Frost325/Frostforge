@@ -34,6 +34,9 @@ BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 GRAY = (20, 20, 20)
 PURPLE = (128, 0, 128)
+ICE_BLUE = (100, 200, 255)
+FROST_BLUE = (150, 220, 255)
+ARCANE_PURPLE = (140, 60, 255)
 
 # LAYOUT SECTIONS
 
@@ -57,6 +60,7 @@ CELL_SIZE = 600 // 10 # THE FIRST BOX IS LINE_WIDTH PIXELS BIGGER BECAUSE THE LI
 CELL_BORDER_SIZE = 1
 CELL_COLOR = PURPLE
 CELLS = []
+
 for row in range(GRID_SIZE):
     for col in range(GRID_SIZE):
         CELLS.append(pygame.Rect(VISUAL_X + VISUAL_BORDER_SIZE + CELL_SIZE * col, VISUAL_Y + VISUAL_BORDER_SIZE + CELL_SIZE * row, CELL_SIZE, CELL_SIZE))
@@ -69,8 +73,11 @@ GameObjects.append(player)
 # LOGIC
 
 # Grid Logic
-GRID = [[0] * GRID_SIZE] * GRID_SIZE
+GRID = [[0 for _ in range(GRID_SIZE)] for _ in range(GRID_SIZE)]
 print(GRID)
+
+# Cell Selection
+SELECTED = None # (X, Y)
 
 running = True
 while running:
@@ -78,6 +85,12 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            MOUSE_X, MOUSE_Y = pygame.mouse.get_pos()
+            # if mouse is within visual
+            if MOUSE_X >= VISUAL_X + VISUAL_BORDER_SIZE and MOUSE_X <= VISUAL_X + VISUAL_DIM - VISUAL_BORDER_SIZE and MOUSE_Y >= VISUAL_Y + VISUAL_BORDER_SIZE and MOUSE_Y <= VISUAL_Y + VISUAL_DIM - VISUAL_BORDER_SIZE:
+                SELECTED = ((MOUSE_X - VISUAL_X - VISUAL_BORDER_SIZE) // CELL_SIZE, (MOUSE_Y - VISUAL_Y - VISUAL_BORDER_SIZE) // 60) # SELECTED = Cell (X, Y) -- X left to right, Y top to bottom
+                print(SELECTED)
 
     # process key presses
     keys = pygame.key.get_pressed()
@@ -101,8 +114,13 @@ while running:
     pygame.draw.rect(screen, VISUAL_BORDER_COLOR, VISUAL, VISUAL_BORDER_SIZE)
 
     # grid
-    for CELL in CELLS:
-        pygame.draw.rect(screen, CELL_COLOR, CELL, CELL_BORDER_SIZE)
+    for c, CELL in enumerate(CELLS):
+        X = c % GRID_SIZE
+        Y = c // GRID_SIZE
+        if SELECTED and SELECTED == (X, Y):
+            pygame.draw.rect(screen, ICE_BLUE, CELL, CELL_BORDER_SIZE)
+        else:
+            pygame.draw.rect(screen, CELL_COLOR, CELL, CELL_BORDER_SIZE)
 
     # game objects
     for object in GameObjects:
