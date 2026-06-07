@@ -32,7 +32,8 @@ pygame.init()
 # COLORS
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
-GRAY = (20, 20, 20)
+DARK_GRAY = (20, 20, 20)
+GRAY = (35, 35, 35)
 PURPLE = (128, 0, 128)
 ICE_BLUE = (100, 200, 255)
 FROST_BLUE = (150, 220, 255)
@@ -45,14 +46,15 @@ WIDTH = 1280
 HEIGHT = 720
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Frostforge")
+BORDER = 30
 
-# Visual
+# Visual (Space for Grid)
 VISUAL_DIM = 620
-VISUAL_BORDER_SIZE = 10
+VISUAL_BORDER_SIZE = BORDER // 3
 VISUAL_BACKGROUND_COLOR = WHITE
 VISUAL_BORDER_COLOR = BLACK
-VISUAL_X = 630 # 550 from border
-VISUAL_Y = 70 # 550 from border
+VISUAL_X = 630 # 650 from border
+VISUAL_Y = 70 # 650 from border
 
 # Grid
 GRID_SIZE = 10
@@ -65,7 +67,29 @@ for row in range(GRID_SIZE):
     for col in range(GRID_SIZE):
         CELLS.append(pygame.Rect(VISUAL_X + VISUAL_BORDER_SIZE + CELL_SIZE * col, VISUAL_Y + VISUAL_BORDER_SIZE + CELL_SIZE * row, CELL_SIZE, CELL_SIZE))
 
-# objects
+# Left Panel(s)
+LEFT_PANEL_X = BORDER
+LEFT_PANEL_Y = BORDER
+LEFT_PANEL_WIDTH = VISUAL_X - LEFT_PANEL_X - BORDER
+LEFT_PANEL_HEIGHT = HEIGHT - 2 * BORDER
+PANEL_GAP = BORDER // 2
+TOP_PANEL_HEIGHT = int(LEFT_PANEL_HEIGHT * 0.3)
+MIDDLE_PANEL_HEIGHT = int(LEFT_PANEL_HEIGHT * 0.4)
+BOTTOM_PANEL_HIEGHT = LEFT_PANEL_HEIGHT - TOP_PANEL_HEIGHT - MIDDLE_PANEL_HEIGHT - 2 * PANEL_GAP
+
+# Future Training Section --> Left Panel: Top
+TOP_RECT = pygame.Rect(LEFT_PANEL_X, LEFT_PANEL_Y, LEFT_PANEL_WIDTH, TOP_PANEL_HEIGHT)
+
+# Future Template Section --> Left Panel: Middle
+MIDDLE_Y = LEFT_PANEL_Y + PANEL_GAP + TOP_PANEL_HEIGHT
+MIDDLE_RECT = pygame.Rect(LEFT_PANEL_X, MIDDLE_Y, LEFT_PANEL_WIDTH, MIDDLE_PANEL_HEIGHT)
+
+# Properties --> Left Panel: Bottom
+BOTTOM_Y = MIDDLE_Y + PANEL_GAP + MIDDLE_PANEL_HEIGHT
+BOTTOM_RECT = pygame.Rect(LEFT_PANEL_X, BOTTOM_Y, LEFT_PANEL_WIDTH, BOTTOM_PANEL_HIEGHT)
+
+# OBJECTS
+
 GameObjects = []
 player = GameObject(x=100, y=100, assetType="shape", dimensions=(50,50))
 GameObjects.append(player)
@@ -73,8 +97,7 @@ GameObjects.append(player)
 # LOGIC
 
 # Grid Logic
-GRID = [[0 for _ in range(GRID_SIZE)] for _ in range(GRID_SIZE)]
-print(GRID)
+GRID = [[None for _ in range(GRID_SIZE)] for _ in range(GRID_SIZE)]
 
 # Cell Selection
 SELECTED = None # (X, Y)
@@ -106,7 +129,19 @@ while running:
     # DRAW
 
     # background
-    screen.fill(GRAY)
+    screen.fill(DARK_GRAY)
+
+    # left panel top
+    pygame.draw.rect(screen, GRAY, TOP_RECT)
+    pygame.draw.rect(screen, PURPLE, TOP_RECT, 3)
+
+    # left panel middle
+    pygame.draw.rect(screen, GRAY, MIDDLE_RECT)
+    pygame.draw.rect(screen, PURPLE, MIDDLE_RECT, 3)
+
+    # left panel bottom
+    pygame.draw.rect(screen, GRAY, BOTTOM_RECT)
+    pygame.draw.rect(screen, PURPLE, BOTTOM_RECT, 3)
 
     # visual
     VISUAL = pygame.Rect(VISUAL_X, VISUAL_Y, VISUAL_DIM, VISUAL_DIM)
