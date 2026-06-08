@@ -2,9 +2,6 @@ import pygame
 
 # CLASSES
 
-# Asset -- image, drawing, etc
-# class Asset: -- BACKBURNER FOR NOW
-
 # GameObject -- anything that renders into play
 class GameObject:
     def __init__(self, x=0, y=0, assetType=None, image=None, shape="rect", dimensions=(0,0), color=(0,0,0)):
@@ -26,10 +23,20 @@ class GameObject:
                 pygame.draw.circle(screen, self.color, (self.x, self.y), self.dimensions[0])
         
         # add here render image, or draw picture
+
+class Template:
+    def __init__(self, assetType=None, image=None, shape="rect", size=100, color=(0,0,0)):
+        self.assetType = assetType
+        self.image = image
+        self.shape = shape
+        self.size = size
+        self.color = color
                 
 pygame.init()
 
-# COLORS
+# AESTHETICS
+
+# Colors
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 DARK_GRAY = (20, 20, 20)
@@ -39,26 +46,33 @@ ICE_BLUE = (100, 200, 255)
 FROST_BLUE = (150, 220, 255)
 ARCANE_PURPLE = (140, 60, 255)
 
+# Fonts
+body = pygame.font.SysFont(None, 30)
+title = pygame.font.SysFont(None, 40)
+
+# Text
+# COMING SOON
+
 # LAYOUT SECTIONS
 
 # Screen -- 1920x1080, 1280x720... make it scalable?
 WIDTH = 1280
 HEIGHT = 720
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
+screen = pygame.display.set_mode((WIDTH, HEIGHT)) # pygame.RESIZABLE
 pygame.display.set_caption("Frostforge")
-BORDER = 30
+BORDER = HEIGHT // 36
 
 # Visual (Space for Grid)
-VISUAL_DIM = 620
-VISUAL_BORDER_SIZE = BORDER // 3
+VISUAL_BORDER_SIZE = BORDER // 5
+VISUAL_DIM = (HEIGHT * 5 // 6) + 2 * VISUAL_BORDER_SIZE
 VISUAL_BACKGROUND_COLOR = WHITE
 VISUAL_BORDER_COLOR = BLACK
-VISUAL_X = 630 # 650 from border
-VISUAL_Y = 70 # 650 from border
+VISUAL_X = WIDTH - VISUAL_DIM - BORDER # 650 from border
+VISUAL_Y = HEIGHT - VISUAL_DIM - BORDER # 650 from border
 
 # Grid
 GRID_SIZE = 10
-CELL_SIZE = 600 // 10 # THE FIRST BOX IS LINE_WIDTH PIXELS BIGGER BECAUSE THE LINE ISN'T DRAWN INTRUDING INTO COLUMN 1 -- IDEA: MAKE LIST OF CELLS AS RECTS, DRAW EACH CELL, AND DRAW A 1PX BORDER IN THE CELL IT OWNS ITS OWN SPACE, WILL DRAW ALONG BORDER BUT OK
+CELL_SIZE = (VISUAL_DIM - 2 * VISUAL_BORDER_SIZE) // GRID_SIZE
 CELL_BORDER_SIZE = 1
 CELL_COLOR = PURPLE
 CELLS = []
@@ -72,21 +86,10 @@ LEFT_PANEL_X = BORDER
 LEFT_PANEL_Y = BORDER
 LEFT_PANEL_WIDTH = VISUAL_X - LEFT_PANEL_X - BORDER
 LEFT_PANEL_HEIGHT = HEIGHT - 2 * BORDER
-PANEL_GAP = BORDER // 2
-TOP_PANEL_HEIGHT = int(LEFT_PANEL_HEIGHT * 0.3)
-MIDDLE_PANEL_HEIGHT = int(LEFT_PANEL_HEIGHT * 0.4)
-BOTTOM_PANEL_HIEGHT = LEFT_PANEL_HEIGHT - TOP_PANEL_HEIGHT - MIDDLE_PANEL_HEIGHT - 2 * PANEL_GAP
+LEFT_PANEL = pygame.Rect(LEFT_PANEL_X, LEFT_PANEL_Y, LEFT_PANEL_WIDTH, LEFT_PANEL_HEIGHT)
 
-# Future Training Section --> Left Panel: Top
-TOP_RECT = pygame.Rect(LEFT_PANEL_X, LEFT_PANEL_Y, LEFT_PANEL_WIDTH, TOP_PANEL_HEIGHT)
-
-# Future Template Section --> Left Panel: Middle
-MIDDLE_Y = LEFT_PANEL_Y + PANEL_GAP + TOP_PANEL_HEIGHT
-MIDDLE_RECT = pygame.Rect(LEFT_PANEL_X, MIDDLE_Y, LEFT_PANEL_WIDTH, MIDDLE_PANEL_HEIGHT)
-
-# Properties --> Left Panel: Bottom
-BOTTOM_Y = MIDDLE_Y + PANEL_GAP + MIDDLE_PANEL_HEIGHT
-BOTTOM_RECT = pygame.Rect(LEFT_PANEL_X, BOTTOM_Y, LEFT_PANEL_WIDTH, BOTTOM_PANEL_HIEGHT)
+# Grid Buttons
+BUTTON_HEIGHT = (VISUAL_Y - BORDER) // 2
 
 # OBJECTS
 
@@ -113,7 +116,6 @@ while running:
             # if mouse is within visual
             if MOUSE_X >= VISUAL_X + VISUAL_BORDER_SIZE and MOUSE_X <= VISUAL_X + VISUAL_DIM - VISUAL_BORDER_SIZE and MOUSE_Y >= VISUAL_Y + VISUAL_BORDER_SIZE and MOUSE_Y <= VISUAL_Y + VISUAL_DIM - VISUAL_BORDER_SIZE:
                 SELECTED = ((MOUSE_X - VISUAL_X - VISUAL_BORDER_SIZE) // CELL_SIZE, (MOUSE_Y - VISUAL_Y - VISUAL_BORDER_SIZE) // 60) # SELECTED = Cell (X, Y) -- X left to right, Y top to bottom
-                print(SELECTED)
 
     # process key presses
     keys = pygame.key.get_pressed()
@@ -131,17 +133,15 @@ while running:
     # background
     screen.fill(DARK_GRAY)
 
-    # left panel top
-    pygame.draw.rect(screen, GRAY, TOP_RECT)
-    pygame.draw.rect(screen, PURPLE, TOP_RECT, 3)
+    # left panel
+    pygame.draw.rect(screen, GRAY, LEFT_PANEL)
+    pygame.draw.rect(screen, ARCANE_PURPLE, LEFT_PANEL, 3)
 
-    # left panel middle
-    pygame.draw.rect(screen, GRAY, MIDDLE_RECT)
-    pygame.draw.rect(screen, PURPLE, MIDDLE_RECT, 3)
+    # buttons
+    pygame.draw.rect(screen, ICE_BLUE, (VISUAL_X, BORDER, VISUAL_DIM, BUTTON_HEIGHT))
 
-    # left panel bottom
-    pygame.draw.rect(screen, GRAY, BOTTOM_RECT)
-    pygame.draw.rect(screen, PURPLE, BOTTOM_RECT, 3)
+    # properties
+
 
     # visual
     VISUAL = pygame.Rect(VISUAL_X, VISUAL_Y, VISUAL_DIM, VISUAL_DIM)
@@ -160,6 +160,13 @@ while running:
     # game objects
     for object in GameObjects:
         object.render()
+
+    # TEXT
+
+    # properties
+    if SELECTED:
+        properties = body.render(f"Cell: {SELECTED}   Template: {GRID[SELECTED[1]][SELECTED[0]]}", True, FROST_BLUE)
+        screen.blit(properties, (VISUAL_X + VISUAL_BORDER_SIZE, BORDER + BUTTON_HEIGHT + (BUTTON_HEIGHT + VISUAL_BORDER_SIZE - properties.get_height()) // 2))
 
     pygame.display.flip()
 
