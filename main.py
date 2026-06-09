@@ -1,57 +1,15 @@
 import pygame
-
-# CLASSES
-
-# GameObject -- anything that renders into play
-class GameObject:
-    def __init__(self, x=0, y=0, assetType=None, image=None, shape="rect", dimensions=(0,0), color=(0,0,0)):
-        self.x = x
-        self.y = y
-        self.assetType = assetType
-        self.image = image
-        self.shape = shape
-        self.dimensions = dimensions
-        self.color = color
-    
-    def render(self):
-        if self.assetType == None:
-            return
-        if self.assetType == "shape": # ADD MORE SHAPES AS NEEDED
-            if self.shape == "rect":
-                pygame.draw.rect(screen, self.color, (self.x, self.y, *self.dimensions))
-            if self.shape == "circle":
-                pygame.draw.circle(screen, self.color, (self.x, self.y), self.dimensions[0])
-        
-        # add here render image, or draw picture
-
-class Template:
-    def __init__(self, assetType=None, image=None, shape="rect", size=100, color=(0,0,0)):
-        self.assetType = assetType
-        self.image = image
-        self.shape = shape
-        self.size = size
-        self.color = color
+from objects import GameObject, Template
+from ui import Button, Dropdown, Page
+from colors import *
                 
 pygame.init()
 
 # AESTHETICS
 
-# Colors
-BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
-DARK_GRAY = (20, 20, 20)
-GRAY = (35, 35, 35)
-PURPLE = (128, 0, 128)
-ICE_BLUE = (100, 200, 255)
-FROST_BLUE = (150, 220, 255)
-ARCANE_PURPLE = (140, 60, 255)
-
 # Fonts
 body = pygame.font.SysFont(None, 30)
 title = pygame.font.SysFont(None, 40)
-
-# Text
-# COMING SOON
 
 # LAYOUT SECTIONS
 
@@ -88,7 +46,7 @@ LEFT_PANEL_WIDTH = VISUAL_X - LEFT_PANEL_X - BORDER
 LEFT_PANEL_HEIGHT = HEIGHT - 2 * BORDER
 LEFT_PANEL = pygame.Rect(LEFT_PANEL_X, LEFT_PANEL_Y, LEFT_PANEL_WIDTH, LEFT_PANEL_HEIGHT)
 
-# Grid Buttons
+# Grid Editing Buttons
 BUTTON_HEIGHT = (VISUAL_Y - BORDER) // 2
 
 # OBJECTS
@@ -105,17 +63,32 @@ GRID = [[None for _ in range(GRID_SIZE)] for _ in range(GRID_SIZE)]
 # Cell Selection
 SELECTED = None # (X, Y)
 
+# Blank/Default Template
+BLANK_TEMPLATE = Template("Blank")
+
+# Buttons
+PLACE_BLANK = Button(VISUAL_X, BORDER, VISUAL_DIM, BUTTON_HEIGHT, "Place", ICE_BLUE, FROST_BLUE)
+
 running = True
 while running:
     # process events
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        
+        # mouse clicked
         if event.type == pygame.MOUSEBUTTONDOWN:
             MOUSE_X, MOUSE_Y = pygame.mouse.get_pos()
-            # if mouse is within visual
+
+            # if mouse is within visual, update selected
             if MOUSE_X >= VISUAL_X + VISUAL_BORDER_SIZE and MOUSE_X <= VISUAL_X + VISUAL_DIM - VISUAL_BORDER_SIZE and MOUSE_Y >= VISUAL_Y + VISUAL_BORDER_SIZE and MOUSE_Y <= VISUAL_Y + VISUAL_DIM - VISUAL_BORDER_SIZE:
-                SELECTED = ((MOUSE_X - VISUAL_X - VISUAL_BORDER_SIZE) // CELL_SIZE, (MOUSE_Y - VISUAL_Y - VISUAL_BORDER_SIZE) // 60) # SELECTED = Cell (X, Y) -- X left to right, Y top to bottom
+                SELECTED = ((MOUSE_X - VISUAL_X - VISUAL_BORDER_SIZE) // CELL_SIZE, (MOUSE_Y - VISUAL_Y - VISUAL_BORDER_SIZE) // CELL_SIZE) # SELECTED = Cell (X, Y) -- X left to right, Y top to bottom
+        
+            # place button clicked
+            if PLACE_BLANK.is_clicked(event.pos):
+                if SELECTED:
+                    x, y = SELECTED
+                    GRID[y][x] = BLANK_TEMPLATE
 
     # process key presses
     keys = pygame.key.get_pressed()
@@ -138,10 +111,7 @@ while running:
     pygame.draw.rect(screen, ARCANE_PURPLE, LEFT_PANEL, 3)
 
     # buttons
-    pygame.draw.rect(screen, ICE_BLUE, (VISUAL_X, BORDER, VISUAL_DIM, BUTTON_HEIGHT))
-
-    # properties
-
+    PLACE_BLANK.render(screen, body)
 
     # visual
     VISUAL = pygame.Rect(VISUAL_X, VISUAL_Y, VISUAL_DIM, VISUAL_DIM)
@@ -156,18 +126,25 @@ while running:
             pygame.draw.rect(screen, ICE_BLUE, CELL, CELL_BORDER_SIZE)
         else:
             pygame.draw.rect(screen, CELL_COLOR, CELL, CELL_BORDER_SIZE)
+        # draw object template if availible
+        if GRID[Y][X]:
+            pygame.draw.rect(screen, ARCANE_PURPLE, CELL.inflate(-8, -8))
 
     # game objects
     for object in GameObjects:
-        object.render()
+        object.render(screen)
 
     # TEXT
 
     # properties
     if SELECTED:
-        properties = body.render(f"Cell: {SELECTED}   Template: {GRID[SELECTED[1]][SELECTED[0]]}", True, FROST_BLUE)
+        template = GRID[SELECTED[1]][SELECTED[0]]
+        template_name = template.name if template else template
+        properties = body.render(f"Cell: {SELECTED}   Template: {template_name}", True, FROST_BLUE)
         screen.blit(properties, (VISUAL_X + VISUAL_BORDER_SIZE, BORDER + BUTTON_HEIGHT + (BUTTON_HEIGHT + VISUAL_BORDER_SIZE - properties.get_height()) // 2))
 
     pygame.display.flip()
 
 pygame.quit()
+
+print(GRID)
