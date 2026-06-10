@@ -83,7 +83,9 @@ while running:
             # if mouse is within visual, update selected
             if MOUSE_X >= VISUAL_X + VISUAL_BORDER_SIZE and MOUSE_X <= VISUAL_X + VISUAL_DIM - VISUAL_BORDER_SIZE and MOUSE_Y >= VISUAL_Y + VISUAL_BORDER_SIZE and MOUSE_Y <= VISUAL_Y + VISUAL_DIM - VISUAL_BORDER_SIZE:
                 SELECTED = ((MOUSE_X - VISUAL_X - VISUAL_BORDER_SIZE) // CELL_SIZE, (MOUSE_Y - VISUAL_Y - VISUAL_BORDER_SIZE) // CELL_SIZE) # SELECTED = Cell (X, Y) -- X left to right, Y top to bottom
-        
+                if SELECTED[0] >= GRID_SIZE or SELECTED[0] < 0 or SELECTED[1] >= GRID_SIZE or SELECTED[1] < 0:
+                    SELECTED = None
+            
             # place button clicked
             if PLACE_BLANK.is_clicked(event.pos):
                 if SELECTED:
@@ -127,8 +129,9 @@ while running:
         else:
             pygame.draw.rect(screen, CELL_COLOR, CELL, CELL_BORDER_SIZE)
         # draw object template if availible
-        if GRID[Y][X]:
-            pygame.draw.rect(screen, ARCANE_PURPLE, CELL.inflate(-8, -8))
+        template = GRID[Y][X]
+        if template:
+            template.render(screen, CELL)
 
     # game objects
     for object in GameObjects:
@@ -139,12 +142,10 @@ while running:
     # properties
     if SELECTED:
         template = GRID[SELECTED[1]][SELECTED[0]]
-        template_name = template.name if template else template
+        template_name = template.name if template else None
         properties = body.render(f"Cell: {SELECTED}   Template: {template_name}", True, FROST_BLUE)
         screen.blit(properties, (VISUAL_X + VISUAL_BORDER_SIZE, BORDER + BUTTON_HEIGHT + (BUTTON_HEIGHT + VISUAL_BORDER_SIZE - properties.get_height()) // 2))
 
     pygame.display.flip()
 
 pygame.quit()
-
-print(GRID)

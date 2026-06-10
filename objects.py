@@ -30,3 +30,19 @@ class Template:
         self.shape = shape
         self.size = size
         self.color = color
+    
+    def render(self, screen, cell):
+        if self.image:
+            image = pygame.transform.scale(self.image, (cell.width * self.size / 100, cell.height * self.size / 100))
+            image_rect = image.get_rect(center=cell.center)
+            screen.blit(image, image_rect)
+        else:
+            padding = int(cell.width * (100 - self.size) / 200)
+            shape_rect = cell.inflate(-padding * 2, -padding * 2)
+            match self.shape:
+                case "rect":
+                    pygame.draw.rect(screen, self.color, shape_rect)
+                case "circle":
+                    pygame.draw.circle(screen, self.color, shape_rect.center, min(shape_rect.width, shape_rect.height) //2)
+                case _:
+                    pygame.draw.rect(screen, (255, 0, 0), shape_rect) # Invalid Shape -- Draw Big Red Box
