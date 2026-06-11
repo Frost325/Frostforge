@@ -2,7 +2,7 @@ import pygame
 from objects import GameObject, Template
 from ui import Button, Dropdown, Page
 from colors import *
-                
+
 pygame.init()
 
 # AESTHETICS
@@ -45,15 +45,19 @@ LEFT_PANEL_Y = BORDER
 LEFT_PANEL_WIDTH = VISUAL_X - LEFT_PANEL_X - BORDER
 LEFT_PANEL_HEIGHT = HEIGHT - 2 * BORDER
 LEFT_PANEL = pygame.Rect(LEFT_PANEL_X, LEFT_PANEL_Y, LEFT_PANEL_WIDTH, LEFT_PANEL_HEIGHT)
+LEFT_PANEL_BORDER = BORDER // 10
 
 # Grid Editing Buttons
+BUTTONS = 2
 BUTTON_HEIGHT = (VISUAL_Y - BORDER) // 2
+BUTTON_WIDTH = VISUAL_DIM // BUTTONS
+PLACE = Button(VISUAL_X, BORDER, BUTTON_WIDTH, BUTTON_HEIGHT, "Place", ICE_BLUE, FROST_BLUE)
+DELETE = Button(VISUAL_X + BUTTON_WIDTH, BORDER, BUTTON_WIDTH, BUTTON_HEIGHT, "Delete", ICE_BLUE, FROST_BLUE)
 
-# OBJECTS
-
-GameObjects = []
-player = GameObject(x=100, y=100, assetType="shape", dimensions=(50,50))
-GameObjects.append(player)
+# Left Panel Tabs
+TABS = 1
+TAB_WIDTH = (LEFT_PANEL_WIDTH - 2 * LEFT_PANEL_BORDER) // TABS
+TEMPLATE_TAB = Button(LEFT_PANEL_X + LEFT_PANEL_BORDER, LEFT_PANEL_Y + LEFT_PANEL_BORDER, TAB_WIDTH, BUTTON_HEIGHT - LEFT_PANEL_BORDER, "Templates", ICE_BLUE, FROST_BLUE)
 
 # LOGIC
 
@@ -63,11 +67,13 @@ GRID = [[None for _ in range(GRID_SIZE)] for _ in range(GRID_SIZE)]
 # Cell Selection
 SELECTED = None # (X, Y)
 
-# Blank/Default Template
-BLANK_TEMPLATE = Template("Blank")
+# Templates
+TEMPLATES = {}
+SELECTED_TEMPLATE = "Wall" # current selected template for placing
 
-# Buttons
-PLACE_BLANK = Button(VISUAL_X, BORDER, VISUAL_DIM, BUTTON_HEIGHT, "Place", ICE_BLUE, FROST_BLUE)
+# Blank/Default Template
+TEMPLATES["Blank"] = Template("Blank")
+TEMPLATES["Wall"] = Template("Wall", color=PURPLE)
 
 running = True
 while running:
@@ -86,22 +92,28 @@ while running:
                 if SELECTED[0] >= GRID_SIZE or SELECTED[0] < 0 or SELECTED[1] >= GRID_SIZE or SELECTED[1] < 0:
                     SELECTED = None
             
-            # place button clicked
-            if PLACE_BLANK.is_clicked(event.pos):
-                if SELECTED:
-                    x, y = SELECTED
-                    GRID[y][x] = BLANK_TEMPLATE
+            # if a tile is selected, check for button clicks
+            if SELECTED:
+                x, y = SELECTED
+
+                # place blank button clicked
+                if PLACE.is_clicked(event.pos):
+                    GRID[y][x] = TEMPLATES[SELECTED_TEMPLATE]
+            
+                # place selected button clicked
+                if DELETE.is_clicked(event.pos):
+                    GRID[y][x] = None
 
     # process key presses
     keys = pygame.key.get_pressed()
-    if keys[pygame.K_w]: # W
-        player.y -= 1
-    if keys[pygame.K_s]: # S
-        player.y += 1
-    if keys[pygame.K_a]: # A
-        player.x -= 1
-    if keys[pygame.K_d]: # D
-        player.x += 1
+    # if keys[pygame.K_w]: # W
+    #     player.y -= 1
+    # if keys[pygame.K_s]: # S
+    #     player.y += 1
+    # if keys[pygame.K_a]: # A
+    #     player.x -= 1
+    # if keys[pygame.K_d]: # D
+    #     player.x += 1
 
     # DRAW
 
@@ -110,10 +122,14 @@ while running:
 
     # left panel
     pygame.draw.rect(screen, GRAY, LEFT_PANEL)
-    pygame.draw.rect(screen, ARCANE_PURPLE, LEFT_PANEL, 3)
+    pygame.draw.rect(screen, ARCANE_PURPLE, LEFT_PANEL, LEFT_PANEL_BORDER)
 
     # buttons
-    PLACE_BLANK.render(screen, body)
+    PLACE.render(screen, body)
+    DELETE.render(screen, body)
+
+    # tabs
+    TEMPLATE_TAB.render(screen, body)
 
     # visual
     VISUAL = pygame.Rect(VISUAL_X, VISUAL_Y, VISUAL_DIM, VISUAL_DIM)
@@ -132,10 +148,6 @@ while running:
         template = GRID[Y][X]
         if template:
             template.render(screen, CELL)
-
-    # game objects
-    for object in GameObjects:
-        object.render(screen)
 
     # TEXT
 
