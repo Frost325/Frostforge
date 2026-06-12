@@ -1,6 +1,6 @@
 import pygame
 from objects import GameObject, Template
-from ui import Button, Dropdown, Page
+from ui import Button, Dropdown, TemplatesPage
 from colors import *
 
 pygame.init()
@@ -75,6 +75,15 @@ SELECTED_TEMPLATE = "Wall" # current selected template for placing
 TEMPLATES["Blank"] = Template("Blank")
 TEMPLATES["Wall"] = Template("Wall", color=PURPLE)
 
+# Pages
+PAGE_X = BORDER + LEFT_PANEL_BORDER
+PAGE_Y = LEFT_PANEL_Y + BUTTON_HEIGHT # Button Height = Tab Height + Left Panel Border
+PAGE_WIDTH = LEFT_PANEL_WIDTH - 2 * LEFT_PANEL_BORDER
+PAGE_HEIGHT = LEFT_PANEL_HEIGHT - LEFT_PANEL_BORDER - BUTTON_HEIGHT # Button Height = Tab Height + Left Panel Border
+PAGES = {}
+PAGES["Templates"] = TemplatesPage(PAGE_X, PAGE_Y , PAGE_WIDTH, PAGE_HEIGHT)
+CURRENT_PAGE = "Templates"
+
 running = True
 while running:
     # process events
@@ -103,17 +112,15 @@ while running:
                 # place selected button clicked
                 if DELETE.is_clicked(event.pos):
                     GRID[y][x] = None
+            
+            # check for tab click
+            if TEMPLATE_TAB.is_clicked(event.pos):
+                CURRENT_PAGE = "Templates"
 
     # process key presses
     keys = pygame.key.get_pressed()
     # if keys[pygame.K_w]: # W
     #     player.y -= 1
-    # if keys[pygame.K_s]: # S
-    #     player.y += 1
-    # if keys[pygame.K_a]: # A
-    #     player.x -= 1
-    # if keys[pygame.K_d]: # D
-    #     player.x += 1
 
     # DRAW
 
@@ -124,12 +131,15 @@ while running:
     pygame.draw.rect(screen, GRAY, LEFT_PANEL)
     pygame.draw.rect(screen, ARCANE_PURPLE, LEFT_PANEL, LEFT_PANEL_BORDER)
 
-    # buttons
-    PLACE.render(screen, body)
-    DELETE.render(screen, body)
+    # active page
+    PAGES[CURRENT_PAGE].render(screen)
 
     # tabs
     TEMPLATE_TAB.render(screen, body)
+
+    # grid buttons
+    PLACE.render(screen, body)
+    DELETE.render(screen, body)
 
     # visual
     VISUAL = pygame.Rect(VISUAL_X, VISUAL_Y, VISUAL_DIM, VISUAL_DIM)

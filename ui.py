@@ -35,4 +35,24 @@ class Dropdown:
     pass
 
 class Page: # tab or page for eventual tabbed menu
-    pass
+    def __init__(self, x, y, width, height):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+  
+    def render(self, screen):
+        pass
+
+    def handle_click(self, pos):
+        pass
+
+class TemplatesPage(Page):
+    def __init__(self, x, y, width, height):
+        super().__init__(x, y, width, height)
+    
+    def render(self, screen):
+        return super().render(screen)
+    
+    def handle_click(self, pos):
+        return super().handle_click(pos)
