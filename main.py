@@ -1,7 +1,8 @@
 import pygame
-from objects import GameObject, Template
-from ui import Button, Dropdown, TemplatesPage
-from colors import *
+from backend.colors import *
+from backend.objects import GameObject, Template
+from backend.ui import Button, Dropdown
+from backend.TemplatePage import TemplatesPage
 
 pygame.init()
 
@@ -122,7 +123,7 @@ while running:
 
             # click within page
             if PAGE_BOX.collidepoint(event.pos):
-                TEMPLATES, SELECTED_TEMPLATE = PAGES[CURRENT_PAGE].handle_click(event.pos)
+                TEMPLATES, SELECTED_TEMPLATE = PAGES[CURRENT_PAGE].handle_click(event.pos, SELECTED_TEMPLATE) # THEY MIGHT HAVE DIFF PARAMGES -- FIGURE IT OUT LATER
 
     # process key presses
     keys = pygame.key.get_pressed()
@@ -146,6 +147,7 @@ while running:
     TEMPLATE_TAB.render(screen, body)
 
     # grid buttons
+    PLACE.text = f"Place [{SELECTED_TEMPLATE[:]}]" # change to [:5] if needed when more buttons are made
     PLACE.render(screen, body)
     DELETE.render(screen, body)
 

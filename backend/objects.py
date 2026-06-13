@@ -1,5 +1,5 @@
 import pygame
-from colors import BLACK
+from backend.colors import BLACK
 
 # GameObject -- anything that renders into play -- SEEMS LIKE THIS MIGHT GET SCRAPPED OR SHELVED FOR LATER
 class GameObject:
