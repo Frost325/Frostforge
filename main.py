@@ -57,7 +57,8 @@ DELETE = Button(VISUAL_X + BUTTON_WIDTH, BORDER, BUTTON_WIDTH, BUTTON_HEIGHT, "D
 # Left Panel Tabs
 TABS = 1
 TAB_WIDTH = (LEFT_PANEL_WIDTH - 2 * LEFT_PANEL_BORDER) // TABS
-TEMPLATE_TAB = Button(LEFT_PANEL_X + LEFT_PANEL_BORDER, LEFT_PANEL_Y + LEFT_PANEL_BORDER, TAB_WIDTH, BUTTON_HEIGHT - LEFT_PANEL_BORDER, "Templates", ICE_BLUE, FROST_BLUE)
+TAB_UNDERLINE = pygame.Rect(LEFT_PANEL_X, LEFT_PANEL_Y + BUTTON_HEIGHT - LEFT_PANEL_BORDER, LEFT_PANEL_WIDTH, LEFT_PANEL_BORDER)
+TEMPLATE_TAB = Button(LEFT_PANEL_X + LEFT_PANEL_BORDER, LEFT_PANEL_Y + LEFT_PANEL_BORDER, TAB_WIDTH, BUTTON_HEIGHT - 2 * LEFT_PANEL_BORDER, "Templates", ICE_BLUE, FROST_BLUE)
 
 # LOGIC
 
@@ -69,7 +70,7 @@ SELECTED = None # (X, Y)
 
 # Templates
 TEMPLATES = {}
-SELECTED_TEMPLATE = "Wall" # current selected template for placing
+SELECTED_TEMPLATE = "Blank" # current selected template for placing
 
 # Blank/Default Template
 TEMPLATES["Blank"] = Template("Blank")
@@ -80,8 +81,9 @@ PAGE_X = BORDER + LEFT_PANEL_BORDER
 PAGE_Y = LEFT_PANEL_Y + BUTTON_HEIGHT # Button Height = Tab Height + Left Panel Border
 PAGE_WIDTH = LEFT_PANEL_WIDTH - 2 * LEFT_PANEL_BORDER
 PAGE_HEIGHT = LEFT_PANEL_HEIGHT - LEFT_PANEL_BORDER - BUTTON_HEIGHT # Button Height = Tab Height + Left Panel Border
+PAGE_BOX = pygame.Rect(PAGE_X, PAGE_Y, PAGE_WIDTH, PAGE_HEIGHT)
 PAGES = {}
-PAGES["Templates"] = TemplatesPage(PAGE_X, PAGE_Y , PAGE_WIDTH, PAGE_HEIGHT)
+PAGES["Templates"] = TemplatesPage(PAGE_X, PAGE_Y , PAGE_WIDTH, PAGE_HEIGHT, body, title, BORDER, TEMPLATES)
 CURRENT_PAGE = "Templates"
 
 running = True
@@ -116,6 +118,11 @@ while running:
             # check for tab click
             if TEMPLATE_TAB.is_clicked(event.pos):
                 CURRENT_PAGE = "Templates"
+            # more tabs go here ---------------
+
+            # click within page
+            if PAGE_BOX.collidepoint(event.pos):
+                TEMPLATES, SELECTED_TEMPLATE = PAGES[CURRENT_PAGE].handle_click(event.pos)
 
     # process key presses
     keys = pygame.key.get_pressed()
@@ -130,6 +137,7 @@ while running:
     # left panel
     pygame.draw.rect(screen, GRAY, LEFT_PANEL)
     pygame.draw.rect(screen, ARCANE_PURPLE, LEFT_PANEL, LEFT_PANEL_BORDER)
+    pygame.draw.rect(screen, ARCANE_PURPLE, TAB_UNDERLINE)
 
     # active page
     PAGES[CURRENT_PAGE].render(screen)
@@ -150,14 +158,14 @@ while running:
     for c, CELL in enumerate(CELLS):
         X = c % GRID_SIZE
         Y = c // GRID_SIZE
-        if SELECTED and SELECTED == (X, Y):
-            pygame.draw.rect(screen, ICE_BLUE, CELL, CELL_BORDER_SIZE)
-        else:
-            pygame.draw.rect(screen, CELL_COLOR, CELL, CELL_BORDER_SIZE)
         # draw object template if availible
         template = GRID[Y][X]
         if template:
             template.render(screen, CELL)
+        if SELECTED and SELECTED == (X, Y):
+            pygame.draw.rect(screen, ICE_BLUE, CELL, CELL_BORDER_SIZE)
+        else:
+            pygame.draw.rect(screen, CELL_COLOR, CELL, CELL_BORDER_SIZE)
 
     # TEXT
 
