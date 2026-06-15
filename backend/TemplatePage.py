@@ -7,7 +7,9 @@ class TemplatesPage(Page):
     def __init__(self, x, y, width, height, body, title, border, templates):
         super().__init__(x, y, width, height, body, title, border)
 
-        # left side template selection
+        # TEMPLATE SELECTION
+
+        # list and header
         self.list_header = title.render(f"Templates", True, BLACK)
         self.list_gap = self.list_header.get_width() //  8
         self.template_list = pygame.Rect(x, y, self.list_header.get_width() + 2 * self.list_gap, height)
@@ -27,9 +29,18 @@ class TemplatesPage(Page):
         
         # new template button
         self.new_template = Button(x, 2 * y + height - self.header_underline.y, self.template_list.width, self.header_underline.y - y, "New Template", SLATE_GRAY, SILVER)
+
+        # TEMPALTE PROPERTIES PANEL
+
+        # random dropdown
+        self.drop = Dropdown(x + 200, y + 200, width // 4, height // 8, ICE_BLUE, FROST_BLUE, ["rect", "circle"], selected="rect")
+
+
     
     def render(self, screen):
         super().render(screen)
+
+        # TEMPLATE LIST
 
         # header
         pygame.draw.rect(screen, LESS_DARK_GRAY, self.template_list)
@@ -44,6 +55,12 @@ class TemplatesPage(Page):
 
         # new template
         self.new_template.render(screen, self.body)
+
+        # TEMPALTE PROPERTIES
+
+        # random dropdown
+        self.drop.render(screen, self.body)
+
 
     def handle_click(self, pos, SELECTED_TEMPLATE):
         super().handle_click(pos)
@@ -63,5 +80,8 @@ class TemplatesPage(Page):
             button = Button(self.x, self.button_y, self.template_list.width, self.button_height, SELECTED_TEMPLATE, ICE_BLUE, FROST_BLUE)
             self.template_buttons.append(button)
             self.button_y += self.button_height
+        
+        # random dropdown
+        self.drop.is_clicked(pos)
 
         return self.templates, SELECTED_TEMPLATE
