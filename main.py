@@ -130,9 +130,16 @@ while running:
             # click within page
             # if PAGE_BOX.collidepoint(event.pos):
             if CURRENT_PAGE == "Templates":
-                TEMPLATES, SELECTED_TEMPLATE = PAGES[CURRENT_PAGE].handle_click(event.pos, SELECTED_TEMPLATE) # THEY MIGHT HAVE DIFF PARAMGES -- FIGURE IT OUT LATER
+                TEMPLATES, SELECTED_TEMPLATE = PAGES[CURRENT_PAGE].handle_click(event.pos, SELECTED_TEMPLATE)
             else:
-                PAGES[CURRENT_PAGE].handle_click(event.pos)
+                PAGES[CURRENT_PAGE].handle_click(event.pos) # add more pages as needed
+        
+        # key pressed
+        if event.type == pygame.KEYDOWN:
+            if CURRENT_PAGE == "Templates":
+                TEMPLATES, SELECTED_TEMPLATE = PAGES[CURRENT_PAGE].handle_key(event, SELECTED_TEMPLATE)
+            else:
+                pass
 
     # process key presses
     keys = pygame.key.get_pressed()

@@ -1,5 +1,5 @@
 import pygame
-from backend.ui import Button, Dropdown, Page
+from backend.ui import Button, Dropdown, Page, Textbox
 from backend.objects import Template
 from backend.colors import *
 
@@ -38,18 +38,18 @@ class TemplatesPage(Page):
         self.text_gap = height // 16
         self.text_y = y + self.text_gap
 
-        # name -------
+        # name
         self.properties_title = title.render(f"{self.selected_template} Properties", True, FROST_BLUE) # gap 0
         self.name_text = body.render("Name:", True, FROST_BLUE)
-        # name text box -- gap 1
+        self.name_box = Textbox(self.text_x + self.name_text.get_width() + border, self.text_y + self.properties_title.get_height() + self.text_gap, self.template_list.width, self.button_height, ICE_BLUE, FROST_BLUE, self.selected_template)
 
         # image
         self.image_text = body.render("Image:", True, FROST_BLUE)
-        self.image_button = Button(self.text_x + self.image_text.get_width() + border, self.text_y + 3 * self.text_gap, self.template_list.width, self.button_height, "None", ICE_BLUE, FROST_BLUE)
+        self.image_button = Button(self.text_x + self.image_text.get_width() + border, self.name_box.y + self.name_box.height + self.text_gap, self.template_list.width, self.button_height, "None", ICE_BLUE, FROST_BLUE)
 
         # shapes dropdown
         self.shape_text = body.render("Shape:", True, FROST_BLUE)
-        self.shape_drop = Dropdown(self.text_x + self.shape_text.get_width() + border, self.text_y + 4 * self.text_gap, self.template_list.width, self.button_height, ICE_BLUE, FROST_BLUE, ["rect", "circle"], selected=self.templates[self.selected_template].shape)
+        self.shape_drop = Dropdown(self.text_x + self.shape_text.get_width() + border, self.image_button.y + self.image_button.height + self.text_gap, self.template_list.width, self.button_height, ICE_BLUE, FROST_BLUE, ["rect", "circle"], selected=self.templates[self.selected_template].shape)
 
         # color
         self.color_text = body.render("Color:", True, FROST_BLUE)
@@ -84,7 +84,8 @@ class TemplatesPage(Page):
         
         # title and name
         screen.blit(self.properties_title, (self.text_x, self.text_y))
-        screen.blit(self.name_text, (self.text_x, self.text_y + self.properties_title.get_height() + self.text_gap))
+        screen.blit(self.name_text, (self.text_x, self.name_box.y + (self.name_box.height - self.name_text.get_height()) // 2))
+        self.name_box.render(screen, self.body)
 
         # image
         screen.blit(self.image_text, (self.text_x, self.image_button.y + (self.image_button.height - self.image_text.get_height()) // 2))
@@ -95,11 +96,11 @@ class TemplatesPage(Page):
         self.shape_drop.render(screen, self.body)
 
         # color
-        screen.blit(self.color_text, (self.text_x, self.text_y + 6 * self.text_gap))
+        screen.blit(self.color_text, (self.text_x, self.text_y + 8 * self.text_gap))
         # text boxes
 
         # size
-        screen.blit(self.size_text, (self.text_x, self.text_y + 7 * self.text_gap))
+        screen.blit(self.size_text, (self.text_x, self.text_y + 9 * self.text_gap))
         # text boxes
 
     def handle_click(self, pos, SELECTED_TEMPLATE):
@@ -123,14 +124,42 @@ class TemplatesPage(Page):
             self.button_y += self.button_height
             self.update(SELECTED_TEMPLATE)
         
+        # TEMPALTE PROPERTIES
+
+        # name
+        if self.name_box.is_clicked(pos): # if True, means box is inactive, can update template name
+            NEW_NAME = self.name_box.text
+            self.templates[SELECTED_TEMPLATE].name = NEW_NAME
+            self.templates[NEW_NAME] = self.templates.pop(SELECTED_TEMPLATE)
+            # update template button
+            for button in self.template_buttons:
+                if button.text == SELECTED_TEMPLATE:
+                    button.text = NEW_NAME
+            SELECTED_TEMPLATE = NEW_NAME # FINISH SOME WAY TO UPDATE GRID
+            self.selected_template = SELECTED_TEMPLATE
+
         # random dropdown
         self.templates[self.selected_template].shape = self.shape_drop.is_clicked(pos)
 
-        return self.templates, SELECTED_TEMPLATE
+        return self.templates, SELECTED_TEMPLATE #, True -- make this some way of meaning to update the grid tempalte names 
     
-    # update properties to show current tempalte
-    def update(self, template):
+    def handle_key(self, event, SELECTED_TEMPLATE):
+        # name
+        if self.name_box.key_pressed(event): # if True, means box is inactive, can update template name
+            NEW_NAME = self.name_box.text
+            self.templates[SELECTED_TEMPLATE].name = NEW_NAME
+            self.templates[NEW_NAME] = self.templates.pop(SELECTED_TEMPLATE)
+            # update template button
+            for button in self.template_buttons:
+                if button.text == SELECTED_TEMPLATE:
+                    button.text = NEW_NAME
+            SELECTED_TEMPLATE = NEW_NAME # FINISH SOME WAY TO UPDATE GRID
+            self.selected_template = SELECTED_TEMPLATE
+        return self.templates, SELECTED_TEMPLATE
 
+    # update properties to show current template
+    def update(self, template):
         # FINISH
-        self.properties_title = self.title.render(f"{self.selected_template} Properties", True, FROST_BLUE)
+        self.properties_title = self.title.render(f"{self.templates[template].name} Properties", True, FROST_BLUE)
+        self.name_box.text = self.templates[template].name
         self.shape_drop.selected = self.templates[template].shape

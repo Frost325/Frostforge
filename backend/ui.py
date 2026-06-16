@@ -102,3 +102,49 @@ class Page: # tab or page for eventual tabbed menu
 
     def handle_click(self, pos):
         pass
+
+class Textbox:
+    def __init__(self, x, y, width, height, color, typing_color, text="", text_color=BLACK):
+        self.rect = pygame.Rect(x, y, width, height)
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.color = color
+        self.typing_color = typing_color
+        self.text = text
+        self.text_color = text_color
+        self.active = False
+    
+    def render(self, screen, font):
+        if self.active:
+            pygame.draw.rect(screen, self.typing_color, self.rect)
+            text = self.text + "_"
+        else:
+            pygame.draw.rect(screen, self.color, self.rect)
+            text = self.text
+        pygame.draw.rect(screen, BLACK, self.rect, min(self.width, self.height) // 20) # outline
+        text_surface = font.render(text, True, self.text_color)
+        text_rect = text_surface.get_rect(center=self.rect.center) # ADD OPTIONS HERE FOR LEFT OR CENTERED
+        screen.blit(text_surface, text_rect)
+        # ADD FOCUS LINE???
+
+    def is_clicked(self, pos):
+        if self.rect.collidepoint(pos):
+            self.active = True
+        else:
+            if self.active:
+                self.active = False
+                return True
+        return False
+    
+    def key_pressed(self, event):
+        if self.active:
+            if event.key == pygame.K_BACKSPACE:
+                self.text = self.text[:-1]
+            elif event.key == pygame.K_RETURN:
+                self.active = False
+                return True
+            else:
+                self.text += event.unicode
+        return False
