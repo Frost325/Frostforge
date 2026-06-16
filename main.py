@@ -1,7 +1,7 @@
 import pygame
 from backend.colors import *
 from backend.objects import GameObject, Template
-from backend.ui import Button, Dropdown
+from backend.ui import Button, Dropdown, Page
 from backend.TemplatePage import TemplatesPage
 
 pygame.init()
@@ -56,10 +56,13 @@ PLACE = Button(VISUAL_X, BORDER, BUTTON_WIDTH, BUTTON_HEIGHT, "Place", ICE_BLUE,
 DELETE = Button(VISUAL_X + BUTTON_WIDTH, BORDER, BUTTON_WIDTH, BUTTON_HEIGHT, "Delete", ICE_BLUE, FROST_BLUE)
 
 # Left Panel Tabs
-TABS = 1
+TABS = 2
+TAB_Y = LEFT_PANEL_Y + LEFT_PANEL_BORDER
 TAB_WIDTH = (LEFT_PANEL_WIDTH - 2 * LEFT_PANEL_BORDER) // TABS
+TAB_HEIGHT = BUTTON_HEIGHT - 2 * LEFT_PANEL_BORDER
 TAB_UNDERLINE = pygame.Rect(LEFT_PANEL_X, LEFT_PANEL_Y + BUTTON_HEIGHT - LEFT_PANEL_BORDER, LEFT_PANEL_WIDTH, LEFT_PANEL_BORDER)
-TEMPLATE_TAB = Button(LEFT_PANEL_X + LEFT_PANEL_BORDER, LEFT_PANEL_Y + LEFT_PANEL_BORDER, TAB_WIDTH, BUTTON_HEIGHT - 2 * LEFT_PANEL_BORDER, "Templates", ICE_BLUE, FROST_BLUE)
+TEMPLATE_TAB = Button(LEFT_PANEL_X + LEFT_PANEL_BORDER, TAB_Y, TAB_WIDTH, TAB_HEIGHT, "Templates", ICE_BLUE, FROST_BLUE)
+EMPTY_TAB = Button(TEMPLATE_TAB.x + TEMPLATE_TAB.width, TAB_Y, TAB_WIDTH, TAB_HEIGHT, "EMPTY", ICE_BLUE, FROST_BLUE) # CHANGE THIS
 
 # LOGIC
 
@@ -85,6 +88,7 @@ PAGE_HEIGHT = LEFT_PANEL_HEIGHT - LEFT_PANEL_BORDER - BUTTON_HEIGHT # Button Hei
 PAGE_BOX = pygame.Rect(PAGE_X, PAGE_Y, PAGE_WIDTH, PAGE_HEIGHT)
 PAGES = {}
 PAGES["Templates"] = TemplatesPage(PAGE_X, PAGE_Y , PAGE_WIDTH, PAGE_HEIGHT, body, title, BORDER, TEMPLATES)
+PAGES["EMPTY"] = Page(PAGE_X, PAGE_Y , PAGE_WIDTH, PAGE_HEIGHT, body, title, BORDER)
 CURRENT_PAGE = "Templates"
 
 running = True
@@ -119,11 +123,16 @@ while running:
             # check for tab click
             if TEMPLATE_TAB.is_clicked(event.pos):
                 CURRENT_PAGE = "Templates"
+            if EMPTY_TAB.is_clicked(event.pos):
+                CURRENT_PAGE = "EMPTY"
             # more tabs go here ---------------
 
             # click within page
-            if PAGE_BOX.collidepoint(event.pos):
+            # if PAGE_BOX.collidepoint(event.pos):
+            if CURRENT_PAGE == "Templates":
                 TEMPLATES, SELECTED_TEMPLATE = PAGES[CURRENT_PAGE].handle_click(event.pos, SELECTED_TEMPLATE) # THEY MIGHT HAVE DIFF PARAMGES -- FIGURE IT OUT LATER
+            else:
+                PAGES[CURRENT_PAGE].handle_click(event.pos)
 
     # process key presses
     keys = pygame.key.get_pressed()
@@ -145,6 +154,7 @@ while running:
 
     # tabs
     TEMPLATE_TAB.render(screen, body)
+    EMPTY_TAB.render(screen, body)
 
     # grid buttons
     PLACE.text = f"Place [{SELECTED_TEMPLATE[:]}]" # change to [:5] if needed when more buttons are made

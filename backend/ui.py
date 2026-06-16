@@ -77,12 +77,14 @@ class Dropdown:
             self.open = not self.open
         elif self.open:
             # if the options menu is open check if one is clicked
-            if True:
-                pass
+            for button in self.buttons:
+                if button.is_clicked(mouse_pos):
+                    self.selected = button.text
             # close the menu - even if one of the options wasn't clicked, means click was elsewhere
             self.open = False
 
             # MAYBE CHECK HERE TO PREVENT THINGS UNDERNEATH FROM BEING CLICKED???
+        return self.selected
 
 
 class Page: # tab or page for eventual tabbed menu
