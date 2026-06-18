@@ -104,7 +104,7 @@ class Page: # tab or page for eventual tabbed menu
         pass
 
 class Textbox:
-    def __init__(self, x, y, width, height, color, typing_color, text="", text_color=BLACK):
+    def __init__(self, x, y, width, height, color, typing_color, text="", text_color=BLACK, size_limit=None, num_only=False):
         self.rect = pygame.Rect(x, y, width, height)
         self.x = x
         self.y = y
@@ -114,6 +114,8 @@ class Textbox:
         self.typing_color = typing_color
         self.text = text
         self.text_color = text_color
+        self.size_limit = size_limit
+        self.num_only = num_only
         self.active = False
     
     def render(self, screen, font):
@@ -145,6 +147,9 @@ class Textbox:
             elif event.key == pygame.K_RETURN:
                 self.active = False
                 return True
+            elif self.num_only and not event.unicode.isdigit(): # alpha character for numbers only, ignore it
+                pass
             else:
-                self.text += event.unicode
+                if not self.size_limit or len(self.text) < self.size_limit:
+                    self.text += event.unicode
         return False
