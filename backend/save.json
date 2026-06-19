@@ -44,14 +44,14 @@
             "Blank",
             null,
             null,
-            "Blank",
+            null,
             null,
             null
         ],
         [
             null,
             null,
-            "Herro",
+            null,
             null,
             null,
             null,
@@ -125,8 +125,8 @@
         "Blank": {
             "name": "Blank",
             "image": null,
-            "shape": "circle",
-            "size": 50,
+            "shape": "rect",
+            "size": 100,
             "color": [
                 0,
                 0,
@@ -142,28 +142,6 @@
                 128,
                 0,
                 128
-            ]
-        },
-        "Herro": {
-            "name": "Herro",
-            "image": null,
-            "shape": "rect",
-            "size": 80,
-            "color": [
-                200,
-                0,
-                0
-            ]
-        },
-        "Blank 3": {
-            "name": "Blank 3",
-            "image": null,
-            "shape": "rect",
-            "size": 100,
-            "color": [
-                0,
-                0,
-                0
             ]
         }
     },

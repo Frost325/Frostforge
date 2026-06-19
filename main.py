@@ -2,7 +2,7 @@ import pygame
 from backend.colors import *
 from backend.objects import GameObject, Template
 from backend.ui import Button, Dropdown, Page
-from backend.TemplatePage import TemplatesPage
+from pages.TemplatePage import TemplatesPage
 from backend.save import save, load
 
 pygame.init()

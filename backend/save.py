@@ -22,11 +22,11 @@ def save(grid, templates, selected_template):
     for name, template in templates.items():
         data["templates"][name] = template.to_dict()
     
-    with open("save.json", "w") as file:
+    with open("backend/save.json", "w") as file:
         json.dump(data, file, indent=4)
 
 def load():
-    with open("save.json", "r") as file:
+    with open("backend/save.json", "r") as file:
         data = json.load(file)
     
     # load templates
