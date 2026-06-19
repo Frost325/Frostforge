@@ -42,7 +42,7 @@ class TemplatesPage(Page):
         # name
         self.properties_title = title.render(f"{self.selected_template} Properties", True, FROST_BLUE) # gap 0
         self.name_text = body.render("Name:", True, FROST_BLUE)
-        self.name_box = Textbox(self.text_x + self.name_text.get_width() + border, self.text_y + self.properties_title.get_height() + self.text_gap, self.button_width, self.button_height, ICE_BLUE, FROST_BLUE, self.selected_template)
+        self.name_box = Textbox(self.text_x + self.name_text.get_width() + border, self.text_y + self.properties_title.get_height() + self.text_gap, self.button_width, self.button_height, ICE_BLUE, FROST_BLUE, self.selected_template, size_limit=10)
 
         # image
         self.image_text = body.render("Image:", True, FROST_BLUE)
@@ -238,5 +238,18 @@ class TemplatesPage(Page):
         self.red_box.text = str(self.templates[template].color[0])
         self.green_box.text = str(self.templates[template].color[1])
         self.blue_box.text = str(self.templates[template].color[2])
+    
+    def load(self, templates, selected_template):
+        self.templates = templates
+        self.selected_template = selected_template
+        self.update(selected_template)
+
+        # template buttons
+        self.template_buttons = []
+        self.button_y = self.header_underline.y + self.header_underline.height
+        for name in templates.keys():
+            button = Button(self.x, self.button_y, self.template_list.width, self.button_height, name, ICE_BLUE, FROST_BLUE)
+            self.template_buttons.append(button)
+            self.button_y += self.button_height
 
 # IMPORTANT NOTE: SHAPE DROPDOWN KIDNA IMPEDES ON RED BOX A LITTLE, AND IF MORE OPTIONS ARE ADDED IT WILL DEFINITLY COVER RED BOX AND NEED TO BE HANDLED SO WHEN OPEN UNDERLYING BOXES ARE COVERED AND NOT CLICKED

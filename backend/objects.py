@@ -46,3 +46,10 @@ class Template:
                     pygame.draw.circle(screen, self.color, shape_rect.center, min(shape_rect.width, shape_rect.height) //2)
                 case _:
                     pygame.draw.rect(screen, (255, 0, 0), shape_rect) # Invalid Shape -- Draw Big Red Box
+    
+    def to_dict(self):
+        return {"name": self.name, "image": self.image, "shape": self.shape, "size": self.size, "color": self.color}
+
+    @classmethod
+    def from_dict(cls, template):
+        return cls(template["name"], template["image"], template["shape"], template["size"], template["color"])
