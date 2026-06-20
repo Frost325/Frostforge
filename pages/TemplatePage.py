@@ -68,6 +68,10 @@ class TemplatesPage(Page):
         self.size_display = body.render("100", True, FROST_BLUE)
         self.small_plus = Button(self.small_minus.x + self.small_minus.width + 2 * border + self.size_display.get_width(), self.large_minus.y, self.large_minus.width, self.button_height, "+1", ICE_BLUE, FROST_BLUE)
         self.large_plus = Button(self.small_plus.x + self.small_plus.width +  border, self.large_minus.y, self.large_minus.width, self.button_height, "+10", ICE_BLUE, FROST_BLUE)
+
+        # sample
+        self.dim = self.green_box.height + 0.5 * self.text_gap
+        self.sample = pygame.Rect((x + width - self.green_box.x - self.green_box.width - self.dim) // 2 + self.green_box.x + self.green_box.width, self.green_box.y - 0.25 * self.text_gap, self.dim, self.dim)
     
     def render(self, screen):
         super().render(screen)
@@ -121,6 +125,17 @@ class TemplatesPage(Page):
         self.small_plus.render(screen, self.body)
         self.large_plus.render(screen, self.body)
 
+        # sample
+        new_dim = (self.green_box.height + 0.5 * self.text_gap) * (self.templates[self.selected_template].size / 100)
+        self.sample = pygame.Rect((self.x + self.width - self.green_box.x - self.green_box.width - new_dim) // 2 + self.green_box.x + self.green_box.width, self.green_box.y - 0.25 * self.text_gap + (self.dim - new_dim) // 2, new_dim, new_dim)
+        match self.templates[self.selected_template].shape:
+            case "rect":
+                pygame.draw.rect(screen, self.templates[self.selected_template].color, self.sample)
+            case "circle":
+                pygame.draw.circle(screen, self.templates[self.selected_template].color, self.sample.center, min(self.sample.width, self.sample.height) //2)
+            case _:
+                pygame.draw.rect(screen, (255, 0, 0), self.sample) # Invalid Shape -- Draw Big Red Box
+
     def handle_click(self, pos, SELECTED_TEMPLATE):
         super().handle_click(pos)
 
@@ -155,6 +170,7 @@ class TemplatesPage(Page):
                     button.text = NEW_NAME
             SELECTED_TEMPLATE = NEW_NAME # FINISH SOME WAY TO UPDATE GRID
             self.selected_template = SELECTED_TEMPLATE
+            self.properties_title = self.title.render(f"{self.selected_template} Properties", True, FROST_BLUE)
 
         # image -- coming soon
 
@@ -207,6 +223,7 @@ class TemplatesPage(Page):
                     button.text = NEW_NAME
             SELECTED_TEMPLATE = NEW_NAME # FINISH SOME WAY TO UPDATE GRID
             self.selected_template = SELECTED_TEMPLATE
+            self.properties_title = self.title.render(f"{self.selected_template} Properties", True, FROST_BLUE)
         
         # color
         (r, g, b) = self.templates[SELECTED_TEMPLATE].color

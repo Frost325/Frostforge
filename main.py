@@ -3,15 +3,12 @@ from backend.colors import *
 from backend.objects import GameObject, Template
 from backend.ui import Button, Dropdown, Page
 from pages.TemplatePage import TemplatesPage
+from pages.SettingsPage import SettingsPage
 from backend.save import save, load
 
 pygame.init()
 
-# AESTHETICS
 
-# Fonts
-body = pygame.font.SysFont(None, 30)
-title = pygame.font.SysFont(None, 40)
 
 # LAYOUT SECTIONS
 
@@ -22,6 +19,11 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT)) # pygame.RESIZABLE
 pygame.display.set_caption("Frostforge")
 BORDER = HEIGHT // 36
 
+# fonts
+title = pygame.font.SysFont(None, HEIGHT // 18)
+body = pygame.font.SysFont(None, HEIGHT // 24)
+
+
 # Visual (Space for Grid)
 VISUAL_BORDER_SIZE = BORDER // 5
 VISUAL_DIM = (HEIGHT * 5 // 6) + 2 * VISUAL_BORDER_SIZE
@@ -31,14 +33,15 @@ VISUAL_X = WIDTH - VISUAL_DIM - BORDER # 650 from border
 VISUAL_Y = HEIGHT - VISUAL_DIM - BORDER # 650 from border
 
 # Grid
-GRID_SIZE = 10
-CELL_SIZE = (VISUAL_DIM - 2 * VISUAL_BORDER_SIZE) // GRID_SIZE
+GRID_WIDTH = 10
+GRID_HEIGHT = 10
+CELL_SIZE = (VISUAL_DIM - 2 * VISUAL_BORDER_SIZE) // max(GRID_WIDTH, GRID_HEIGHT)
 CELL_BORDER_SIZE = 1
 CELL_COLOR = PURPLE
 CELLS = []
 
-for row in range(GRID_SIZE):
-    for col in range(GRID_SIZE):
+for row in range(GRID_HEIGHT):
+    for col in range(GRID_WIDTH):
         CELLS.append(pygame.Rect(VISUAL_X + VISUAL_BORDER_SIZE + CELL_SIZE * col, VISUAL_Y + VISUAL_BORDER_SIZE + CELL_SIZE * row, CELL_SIZE, CELL_SIZE))
 
 # Left Panel(s)
@@ -72,7 +75,7 @@ SETTINGS_TAB = Button(EMPTY_TAB.x + TAB_WIDTH, TAB_Y, TAB_WIDTH, TAB_HEIGHT, "Se
 # LOGIC
 
 # Grid Logic
-GRID = [[None for _ in range(GRID_SIZE)] for _ in range(GRID_SIZE)]
+GRID = [[None for _ in range(GRID_WIDTH)] for _ in range(GRID_HEIGHT)]
 
 # Cell Selection
 SELECTED = None # (X, Y)
@@ -94,7 +97,7 @@ PAGE_BOX = pygame.Rect(PAGE_X, PAGE_Y, PAGE_WIDTH, PAGE_HEIGHT)
 PAGES = {}
 PAGES["Templates"] = TemplatesPage(PAGE_X, PAGE_Y , PAGE_WIDTH, PAGE_HEIGHT, body, title, BORDER, TEMPLATES)
 PAGES["EMPTY"] = Page(PAGE_X, PAGE_Y , PAGE_WIDTH, PAGE_HEIGHT, body, title, BORDER)
-PAGES["Settings"] = Page(PAGE_X, PAGE_Y, PAGE_WIDTH, PAGE_HEIGHT, body, title, BORDER)
+PAGES["Settings"] = SettingsPage(PAGE_X, PAGE_Y, PAGE_WIDTH, PAGE_HEIGHT, body, title, BORDER)
 CURRENT_PAGE = "Templates"
 
 running = True
@@ -111,7 +114,7 @@ while running:
             # if mouse is within visual, update selected
             if MOUSE_X >= VISUAL_X + VISUAL_BORDER_SIZE and MOUSE_X <= VISUAL_X + VISUAL_DIM - VISUAL_BORDER_SIZE and MOUSE_Y >= VISUAL_Y + VISUAL_BORDER_SIZE and MOUSE_Y <= VISUAL_Y + VISUAL_DIM - VISUAL_BORDER_SIZE:
                 NEW_SELECTED = ((MOUSE_X - VISUAL_X - VISUAL_BORDER_SIZE) // CELL_SIZE, (MOUSE_Y - VISUAL_Y - VISUAL_BORDER_SIZE) // CELL_SIZE) # SELECTED = Cell (X, Y) -- X left to right, Y top to bottom
-                if NEW_SELECTED[0] >= GRID_SIZE or NEW_SELECTED[0] < 0 or NEW_SELECTED[1] >= GRID_SIZE or NEW_SELECTED[1] < 0:
+                if NEW_SELECTED[0] >= GRID_WIDTH or NEW_SELECTED[0] < 0 or NEW_SELECTED[1] >= GRID_HEIGHT or NEW_SELECTED[1] < 0:
                     SELECTED = None
                 elif SELECTED and NEW_SELECTED == SELECTED:
                     SELECTED = None
@@ -153,9 +156,10 @@ while running:
             # more tabs go here ---------------
 
             # click within page
-            # if PAGE_BOX.collidepoint(event.pos):
             if CURRENT_PAGE == "Templates":
                 TEMPLATES, SELECTED_TEMPLATE = PAGES[CURRENT_PAGE].handle_click(event.pos, SELECTED_TEMPLATE)
+            elif CURRENT_PAGE == "Settings":
+                pass # FINISH
             else:
                 PAGES[CURRENT_PAGE].handle_click(event.pos) # add more pages as needed
         
@@ -203,8 +207,8 @@ while running:
 
     # grid
     for c, CELL in enumerate(CELLS):
-        X = c % GRID_SIZE
-        Y = c // GRID_SIZE
+        X = c % GRID_WIDTH
+        Y = c // GRID_HEIGHT
         # draw object template if availible
         template = GRID[Y][X]
         if template:

@@ -15,10 +15,46 @@
         [
             null,
             null,
+            "Wall",
             null,
             null,
             null,
             null,
+            null,
+            null,
+            null
+        ],
+        [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            "Wall",
+            null
+        ],
+        [
+            null,
+            "Japan",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+        ],
+        [
+            null,
+            null,
+            null,
+            null,
+            null,
+            "Japan",
             null,
             null,
             null,
@@ -41,18 +77,6 @@
             null,
             null,
             null,
-            "Blank",
-            null,
-            null,
-            null,
-            null,
-            null
-        ],
-        [
-            null,
-            null,
-            null,
-            null,
             null,
             null,
             null,
@@ -64,31 +88,7 @@
             null,
             null,
             null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null
-        ],
-        [
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null
-        ],
-        [
-            null,
-            null,
-            null,
-            null,
+            "Japan",
             null,
             null,
             null,
@@ -122,17 +122,6 @@
         ]
     ],
     "templates": {
-        "Blank": {
-            "name": "Blank",
-            "image": null,
-            "shape": "rect",
-            "size": 100,
-            "color": [
-                0,
-                0,
-                0
-            ]
-        },
         "Wall": {
             "name": "Wall",
             "image": null,
@@ -143,7 +132,29 @@
                 0,
                 128
             ]
+        },
+        "Japan": {
+            "name": "Japan",
+            "image": null,
+            "shape": "circle",
+            "size": 70,
+            "color": [
+                200,
+                0,
+                0
+            ]
+        },
+        "Hello": {
+            "name": "Hello",
+            "image": null,
+            "shape": "rect",
+            "size": 100,
+            "color": [
+                0,
+                0,
+                0
+            ]
         }
     },
-    "selected_template": "Blank"
+    "selected_template": "Wall"
 }

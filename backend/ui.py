@@ -103,6 +103,9 @@ class Page: # tab or page for eventual tabbed menu
     def handle_click(self, pos):
         pass
 
+    def handle_key(self, event):
+        pass
+
 class Textbox:
     def __init__(self, x, y, width, height, color, typing_color, text="", text_color=BLACK, size_limit=None, num_only=False):
         self.rect = pygame.Rect(x, y, width, height)
