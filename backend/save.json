@@ -92,7 +92,7 @@
             null,
             null,
             null,
-            null,
+            "Hello",
             null,
             null
         ],
@@ -148,13 +148,13 @@
             "name": "Hello",
             "image": null,
             "shape": "rect",
-            "size": 100,
+            "size": 80,
             "color": [
-                0,
-                0,
-                0
+                100,
+                170,
+                255
             ]
         }
     },
-    "selected_template": "Wall"
+    "selected_template": "Hello"
 }
