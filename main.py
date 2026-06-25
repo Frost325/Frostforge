@@ -4,11 +4,9 @@ from backend.objects import GameObject, Template
 from backend.ui import Button, Dropdown, Page
 from pages.TemplatePage import TemplatesPage
 from pages.SettingsPage import SettingsPage
-from backend.save import save, load
+from backend.functions import save, load, change_grid_size
 
 pygame.init()
-
-
 
 # LAYOUT SECTIONS
 
@@ -22,7 +20,6 @@ BORDER = HEIGHT // 36
 # fonts
 title = pygame.font.SysFont(None, HEIGHT // 18)
 body = pygame.font.SysFont(None, HEIGHT // 24)
-
 
 # Visual (Space for Grid)
 VISUAL_BORDER_SIZE = BORDER // 5
@@ -159,7 +156,21 @@ while running:
             if CURRENT_PAGE == "Templates":
                 TEMPLATES, SELECTED_TEMPLATE = PAGES[CURRENT_PAGE].handle_click(event.pos, SELECTED_TEMPLATE)
             elif CURRENT_PAGE == "Settings":
-                pass # FINISH
+                NEW_WIDTH, NEW_HEIGHT, NEW_BACKGROUND_COLOR, NEW_LINE_COLOR = PAGES[CURRENT_PAGE].handle_click(event.pos)
+                # update settings
+                if NEW_WIDTH or NEW_HEIGHT:
+                    GRID, GRID_WIDTH, GRID_HEIGHT = change_grid_size(GRID, NEW_WIDTH, NEW_HEIGHT)
+                    # update cells
+                    CELL_SIZE = (VISUAL_DIM - 2 * VISUAL_BORDER_SIZE) // max(GRID_WIDTH, GRID_HEIGHT)
+                    CELLS = []
+                    for row in range(GRID_HEIGHT):
+                        for col in range(GRID_WIDTH):
+                            CELLS.append(pygame.Rect(VISUAL_X + VISUAL_BORDER_SIZE + CELL_SIZE * col, VISUAL_Y + VISUAL_BORDER_SIZE + CELL_SIZE * row, CELL_SIZE, CELL_SIZE))
+
+                if NEW_BACKGROUND_COLOR:
+                    VISUAL_BACKGROUND_COLOR = NEW_BACKGROUND_COLOR
+                if NEW_LINE_COLOR:
+                    CELL_COLOR = NEW_LINE_COLOR
             else:
                 PAGES[CURRENT_PAGE].handle_click(event.pos) # add more pages as needed
         
@@ -167,13 +178,14 @@ while running:
         if event.type == pygame.KEYDOWN:
             if CURRENT_PAGE == "Templates":
                 TEMPLATES, SELECTED_TEMPLATE = PAGES[CURRENT_PAGE].handle_key(event, SELECTED_TEMPLATE)
+            elif CURRENT_PAGE == "Settings":
+                NEW_BACKGROUND_COLOR, NEW_LINE_COLOR = PAGES[CURRENT_PAGE].handle_key(event)
+                if NEW_BACKGROUND_COLOR:
+                    VISUAL_BACKGROUND_COLOR = NEW_BACKGROUND_COLOR
+                if NEW_LINE_COLOR:
+                    CELL_COLOR = NEW_LINE_COLOR
             else:
-                pass
-
-    # process key presses
-    keys = pygame.key.get_pressed()
-    # if keys[pygame.K_w]: # W
-    #     player.y -= 1
+                PAGES[CURRENT_PAGE].handle_key(event)
 
     # DRAW
 
@@ -208,7 +220,7 @@ while running:
     # grid
     for c, CELL in enumerate(CELLS):
         X = c % GRID_WIDTH
-        Y = c // GRID_HEIGHT
+        Y = c // GRID_WIDTH
         # draw object template if availible
         template = GRID[Y][X]
         if template:

@@ -46,3 +46,19 @@ def load():
         grid.append(grid_row)
 
     return grid, templates, data["selected_template"]
+
+def change_grid_size(grid, new_width, new_height):
+    width = len(grid[0])
+    height = len(grid)
+    if new_width:
+        new_grid = [[None for _ in range(new_width)] for _ in range(height)]
+        width = min(width, new_width)
+    elif new_height:
+        new_grid = [[None for _ in range(width)] for _ in range(new_height)]
+        height = min(height, new_height)
+
+    # transfer templates to new grid
+    for r in range(height):
+        for c in range(width):
+            new_grid[r][c] = grid[r][c]
+    return new_grid, len(new_grid[0]), len(new_grid)
