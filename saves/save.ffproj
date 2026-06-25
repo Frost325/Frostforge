@@ -156,5 +156,18 @@
             ]
         }
     },
-    "selected_template": "Hello"
+    "selected_template": "Hello",
+    "width": 10,
+    "height": 10,
+    "background_color": [
+        255,
+        220,
+        220
+    ],
+    "line_color": [
+        128,
+        0,
+        128
+    ],
+    "show_lines": true
 }

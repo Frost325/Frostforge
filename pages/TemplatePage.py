@@ -126,6 +126,7 @@ class TemplatesPage(Page):
         self.large_plus.render(screen, self.body)
 
         # sample
+        pygame.draw.rect(screen, BLACK, ((self.x + self.width - self.green_box.x - self.green_box.width - self.dim) // 2 + self.green_box.x + self.green_box.width, self.green_box.y - 0.25 * self.text_gap, self.dim, self.dim), 1)
         new_dim = (self.green_box.height + 0.5 * self.text_gap) * (self.templates[self.selected_template].size / 100)
         self.sample = pygame.Rect((self.x + self.width - self.green_box.x - self.green_box.width - new_dim) // 2 + self.green_box.x + self.green_box.width, self.green_box.y - 0.25 * self.text_gap + (self.dim - new_dim) // 2, new_dim, new_dim)
         match self.templates[self.selected_template].shape:

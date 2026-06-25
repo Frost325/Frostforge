@@ -52,7 +52,8 @@ class SettingsPage(Page):
         self.image_button = Button(x + 3 * border + self.image_text.get_width(), self.line_red_box.y + self.button_height + self.vertical_gap, self.button_width, self.button_height, "None", ICE_BLUE, FROST_BLUE)
 
         # SHOW GRID LINES - MAKE A CHECK BOX
-        # FINISH
+        self.show_lines_text = body.render("Show Grid Lines:", True, FROST_BLUE)
+        self.show_lines = Button(x + 3 * border + self.show_lines_text.get_width(), self.image_button.y + self.button_height + self.vertical_gap, self.button_height, self.button_height, "X", ICE_BLUE, FROST_BLUE)
 
         # NEXT SECTION
 
@@ -98,7 +99,8 @@ class SettingsPage(Page):
         self.image_button.render(screen, self.body)
 
         # show grid lines
-        # FINISH
+        screen.blit(self.show_lines_text, (self.x + 2 * self.border, self.show_lines.y + (self.button_height - self.show_lines_text.get_height()) // 2))
+        self.show_lines.render(screen, self.body)
 
 
     def handle_click(self, pos):
@@ -166,9 +168,15 @@ class SettingsPage(Page):
             self.line_color = (min(r, 255), min(g, 255), min(b, 255))
             new_line_color = self.line_color
 
+        # show lines checkbox button
+        show = True if self.show_lines.text == "X" else False
+        if self.show_lines.is_clicked(pos):
+            show = not show
+            self.show_lines.text = "X" if show else ""
+
         # New Stuff Put Here
 
-        return new_width, new_height, new_background_color, new_line_color
+        return new_width, new_height, new_background_color, new_line_color, show
     
     def handle_key(self, event):
         super().handle_key(event)
@@ -224,3 +232,13 @@ class SettingsPage(Page):
         self.line_red_box.text = str(self.line_color[0])
         self.line_green_box.text = str(self.line_color[1])
         self.line_blue_box.text = str(self.line_color[2])
+    
+    def load(self, grid_width, grid_height, background_color, line_color, show_lines):
+        self.gw = grid_width
+        self.gh = grid_height
+        self.grid_width = self.body.render(str(self.gw), True, FROST_BLUE)
+        self.grid_height = self.body.render(str(self.gh), True, FROST_BLUE)
+        self.background_color = background_color
+        self.line_color = line_color
+        self.update()
+        self.show_lines.text = "X" if show_lines else ""

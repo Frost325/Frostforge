@@ -4,7 +4,7 @@ from backend.objects import GameObject, Template
 from backend.ui import Button, Dropdown, Page
 from pages.TemplatePage import TemplatesPage
 from pages.SettingsPage import SettingsPage
-from backend.functions import save, load, change_grid_size
+from backend.functions import save, load, export, change_grid_size
 
 pygame.init()
 
@@ -73,6 +73,7 @@ SETTINGS_TAB = Button(EMPTY_TAB.x + TAB_WIDTH, TAB_Y, TAB_WIDTH, TAB_HEIGHT, "Se
 
 # Grid Logic
 GRID = [[None for _ in range(GRID_WIDTH)] for _ in range(GRID_HEIGHT)]
+SHOW_LINES = True
 
 # Cell Selection
 SELECTED = None # (X, Y)
@@ -134,14 +135,15 @@ while running:
             
             # save/load
             if SAVE.is_clicked(event.pos):
-                save(GRID, TEMPLATES, SELECTED_TEMPLATE)
+                save(GRID, TEMPLATES, SELECTED_TEMPLATE, VISUAL_BACKGROUND_COLOR, CELL_COLOR, SHOW_LINES)
             if LOAD.is_clicked(event.pos):
-                GRID, TEMPLATES, SELECTED_TEMPLATE = load()
+                GRID, TEMPLATES, SELECTED_TEMPLATE, GRID_WIDTH, GRID_HEIGHT, VISUAL_BACKGROUND_COLOR, CELL_COLOR, SHOW_LINES = load()
                 PAGES["Templates"].load(TEMPLATES, SELECTED_TEMPLATE)
+                PAGES["Settings"].load(GRID_WIDTH, GRID_HEIGHT, VISUAL_BACKGROUND_COLOR, CELL_COLOR, SHOW_LINES)
 
             # export - COMING SOON
             if EXPORT.is_clicked(event.pos):
-                pass
+                export(GRID, TEMPLATES, GRID_WIDTH, GRID_HEIGHT, VISUAL_BACKGROUND_COLOR, CELL_COLOR, True)
 
             # check for tab click
             if TEMPLATE_TAB.is_clicked(event.pos):
@@ -156,7 +158,7 @@ while running:
             if CURRENT_PAGE == "Templates":
                 TEMPLATES, SELECTED_TEMPLATE = PAGES[CURRENT_PAGE].handle_click(event.pos, SELECTED_TEMPLATE)
             elif CURRENT_PAGE == "Settings":
-                NEW_WIDTH, NEW_HEIGHT, NEW_BACKGROUND_COLOR, NEW_LINE_COLOR = PAGES[CURRENT_PAGE].handle_click(event.pos)
+                NEW_WIDTH, NEW_HEIGHT, NEW_BACKGROUND_COLOR, NEW_LINE_COLOR, SHOW_LINES = PAGES[CURRENT_PAGE].handle_click(event.pos)
                 # update settings
                 if NEW_WIDTH or NEW_HEIGHT:
                     GRID, GRID_WIDTH, GRID_HEIGHT = change_grid_size(GRID, NEW_WIDTH, NEW_HEIGHT)
@@ -227,7 +229,7 @@ while running:
             template.render(screen, CELL)
         if SELECTED and SELECTED == (X, Y):
             pygame.draw.rect(screen, ICE_BLUE, CELL, CELL_BORDER_SIZE)
-        else:
+        elif SHOW_LINES:
             pygame.draw.rect(screen, CELL_COLOR, CELL, CELL_BORDER_SIZE)
 
     # TEXT
@@ -245,3 +247,6 @@ while running:
     pygame.display.flip()
 
 pygame.quit()
+
+
+# use ffproj for editor save files, ffenv for exported env files.
