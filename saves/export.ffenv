@@ -1,0 +1,174 @@
+{
+    "grid": [
+        [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+        ],
+        [
+            null,
+            null,
+            "Wall",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+        ],
+        [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            "Wall",
+            null
+        ],
+        [
+            null,
+            "Japan",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+        ],
+        [
+            null,
+            null,
+            null,
+            null,
+            null,
+            "Japan",
+            null,
+            null,
+            null,
+            null
+        ],
+        [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+        ],
+        [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+        ],
+        [
+            null,
+            null,
+            null,
+            "Japan",
+            null,
+            null,
+            null,
+            "Hello",
+            null,
+            null
+        ],
+        [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+        ],
+        [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+        ]
+    ],
+    "templates": {
+        "Wall": {
+            "name": "Wall",
+            "image": null,
+            "shape": "rect",
+            "size": 100,
+            "color": [
+                128,
+                0,
+                128
+            ]
+        },
+        "Japan": {
+            "name": "Japan",
+            "image": null,
+            "shape": "circle",
+            "size": 70,
+            "color": [
+                200,
+                0,
+                0
+            ]
+        },
+        "Hello": {
+            "name": "Hello",
+            "image": null,
+            "shape": "rect",
+            "size": 80,
+            "color": [
+                100,
+                170,
+                255
+            ]
+        }
+    },
+    "settings": {
+        "width": 10,
+        "height": 10,
+        "background_color": [
+            255,
+            220,
+            220
+        ],
+        "line_color": [
+            128,
+            0,
+            128
+        ],
+        "show_lines": true
+    }
+}

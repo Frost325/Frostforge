@@ -14,7 +14,7 @@ pygame.init()
 WIDTH = 1280
 HEIGHT = 720
 screen = pygame.display.set_mode((WIDTH, HEIGHT)) # pygame.RESIZABLE
-pygame.display.set_caption("Frostforge")
+pygame.display.set_caption("FrostForge")
 BORDER = HEIGHT // 36
 
 # fonts
@@ -143,7 +143,7 @@ while running:
 
             # export - COMING SOON
             if EXPORT.is_clicked(event.pos):
-                export(GRID, TEMPLATES, GRID_WIDTH, GRID_HEIGHT, VISUAL_BACKGROUND_COLOR, CELL_COLOR, True)
+                export(GRID, TEMPLATES, VISUAL_BACKGROUND_COLOR, CELL_COLOR, True)
 
             # check for tab click
             if TEMPLATE_TAB.is_clicked(event.pos):
