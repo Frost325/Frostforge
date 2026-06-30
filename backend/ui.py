@@ -58,13 +58,16 @@ class Dropdown:
         pygame.draw.rect(screen, BLACK, self.rect, min(self.width, self.height) // 20) # outline
 
         # Draw Text
-        if self.selected:
-            text = self.selected + " v"
-        else:
-            text = " v"
+        text = self.selected if self.selected else ""
         text_surface = font.render(text, True, self.text_color)
         text_rect = text_surface.get_rect(center=self.rect.center)
         screen.blit(text_surface, text_rect)
+
+        # Dropdown Arrow
+        arrow_size = self.height // 5
+        cx = self.rect.right - self.height // 2
+        cy = self.rect.centery
+        pygame.draw.polygon(screen, self.text_color, [(cx - arrow_size, cy - arrow_size // 2), (cx + arrow_size, cy - arrow_size // 2), (cx, cy + arrow_size // 2)])
 
         # draw dropdown if open
         if self.open:
@@ -156,3 +159,46 @@ class Textbox:
                 if not self.size_limit or len(self.text) < self.size_limit:
                     self.text += event.unicode
         return False
+
+class Cycle():
+    def __init__(self, x, y, width, height, color, hover_color, options=[None], selected=0, text_color=BLACK):
+        self.rect = pygame.Rect(x, y, width, height)
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.color = color
+        self.hover_color = hover_color
+        self.options = options
+        self.selected = selected
+        self.text_color = text_color
+    
+    def render(self, screen, font):
+        # Draw Cycle Button
+        mouse_pos = pygame.mouse.get_pos()
+        if self.rect.collidepoint(mouse_pos):
+            current_color = self.hover_color
+        else:
+            current_color = self.color
+        pygame.draw.rect(screen, current_color, self.rect)
+        pygame.draw.rect(screen, BLACK, self.rect, min(self.width, self.height) // 20) # outline
+        
+        # Draw Text
+        text_surface = font.render(self.get_selected(), True, self.text_color)
+        text_rect = text_surface.get_rect(center=self.rect.center)
+        screen.blit(text_surface, text_rect)
+
+        # Dropdown Arrow
+        arrow_size = self.height // 3
+        cx = self.rect.right - self.height // 2
+        cy = self.rect.centery
+        pygame.draw.polygon(screen, self.text_color, [(cx - arrow_size // 2, cy - arrow_size // 2), (cx + arrow_size // 2, cy), (cx - arrow_size // 2, cy + arrow_size // 2)])
+    
+    def is_clicked(self, mouse_pos):
+        if self.rect.collidepoint(mouse_pos):
+            self.selected += 1
+            if self.selected >= len(self.options):
+                self.selected = 0
+    
+    def get_selected(self):
+        return self.options[self.selected]

@@ -51,9 +51,12 @@ class SettingsPage(Page):
         self.image_text = body.render("Background Image:", True, FROST_BLUE)
         self.image_button = Button(x + 3 * border + self.image_text.get_width(), self.line_red_box.y + self.button_height + self.vertical_gap, self.button_width, self.button_height, "None", ICE_BLUE, FROST_BLUE)
 
-        # SHOW GRID LINES - MAKE A CHECK BOX
+        # show grid lines
         self.show_lines_text = body.render("Show Grid Lines:", True, FROST_BLUE)
         self.show_lines = Button(x + 3 * border + self.show_lines_text.get_width(), self.image_button.y + self.button_height + self.vertical_gap, self.button_height, self.button_height, "X", ICE_BLUE, FROST_BLUE)
+
+        # underline
+        self.grid_underline = pygame.Rect(x + border, self.show_lines.y + self.button_height + border, width - 2 * border, border // 10)
 
         # NEXT SECTION
 
@@ -100,7 +103,13 @@ class SettingsPage(Page):
 
         # show grid lines
         screen.blit(self.show_lines_text, (self.x + 2 * self.border, self.show_lines.y + (self.button_height - self.show_lines_text.get_height()) // 2))
-        self.show_lines.render(screen, self.body)
+        self.show_lines.render(screen, self.title)
+
+        # grid underline
+        pygame.draw.rect(screen, PURPLE, self.grid_underline)
+
+        # NEXT SECTION
+        screen.blit(self.empty, (self.x + self.border, self.grid_underline.bottom + self.border))
 
 
     def handle_click(self, pos):

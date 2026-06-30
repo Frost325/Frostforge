@@ -2,8 +2,9 @@ import pygame
 from backend.colors import *
 from backend.objects import GameObject, Template
 from backend.ui import Button, Dropdown, Page
-from pages.TemplatePage import TemplatesPage
+from pages.TemplatesPage import TemplatesPage
 from pages.SettingsPage import SettingsPage
+from pages.BehaviorPage import BehaviorPage
 from backend.functions import save, load, export, change_grid_size
 
 pygame.init()
@@ -66,8 +67,8 @@ TAB_WIDTH = (LEFT_PANEL_WIDTH - 2 * LEFT_PANEL_BORDER) // TABS
 TAB_HEIGHT = BUTTON_HEIGHT - 2 * LEFT_PANEL_BORDER
 TAB_UNDERLINE = pygame.Rect(LEFT_PANEL_X, LEFT_PANEL_Y + BUTTON_HEIGHT - LEFT_PANEL_BORDER, LEFT_PANEL_WIDTH, LEFT_PANEL_BORDER)
 TEMPLATE_TAB = Button(LEFT_PANEL_X + LEFT_PANEL_BORDER, TAB_Y, TAB_WIDTH, TAB_HEIGHT, "Templates", ICE_BLUE, FROST_BLUE)
-EMPTY_TAB = Button(TEMPLATE_TAB.x + TAB_WIDTH, TAB_Y, TAB_WIDTH, TAB_HEIGHT, "EMPTY", ICE_BLUE, FROST_BLUE) # CHANGE THIS
-SETTINGS_TAB = Button(EMPTY_TAB.x + TAB_WIDTH, TAB_Y, TAB_WIDTH, TAB_HEIGHT, "Settings", ICE_BLUE, FROST_BLUE)
+BEHAVIOR_TAB = Button(TEMPLATE_TAB.x + TAB_WIDTH, TAB_Y, TAB_WIDTH, TAB_HEIGHT, "Behavior", ICE_BLUE, FROST_BLUE) # CHANGE THIS
+SETTINGS_TAB = Button(BEHAVIOR_TAB.x + TAB_WIDTH, TAB_Y, TAB_WIDTH, TAB_HEIGHT, "Settings", ICE_BLUE, FROST_BLUE)
 
 # LOGIC
 
@@ -94,7 +95,7 @@ PAGE_HEIGHT = LEFT_PANEL_HEIGHT - LEFT_PANEL_BORDER - BUTTON_HEIGHT # Button Hei
 PAGE_BOX = pygame.Rect(PAGE_X, PAGE_Y, PAGE_WIDTH, PAGE_HEIGHT)
 PAGES = {}
 PAGES["Templates"] = TemplatesPage(PAGE_X, PAGE_Y , PAGE_WIDTH, PAGE_HEIGHT, body, title, BORDER, TEMPLATES)
-PAGES["EMPTY"] = Page(PAGE_X, PAGE_Y , PAGE_WIDTH, PAGE_HEIGHT, body, title, BORDER)
+PAGES["Behavior"] = BehaviorPage(PAGE_X, PAGE_Y , PAGE_WIDTH, PAGE_HEIGHT, body, title, BORDER, TEMPLATES)
 PAGES["Settings"] = SettingsPage(PAGE_X, PAGE_Y, PAGE_WIDTH, PAGE_HEIGHT, body, title, BORDER)
 CURRENT_PAGE = "Templates"
 
@@ -148,8 +149,8 @@ while running:
             # check for tab click
             if TEMPLATE_TAB.is_clicked(event.pos):
                 CURRENT_PAGE = "Templates"
-            if EMPTY_TAB.is_clicked(event.pos):
-                CURRENT_PAGE = "EMPTY"
+            if BEHAVIOR_TAB.is_clicked(event.pos):
+                CURRENT_PAGE = "Behavior"
             if SETTINGS_TAB.is_clicked(event.pos):
                 CURRENT_PAGE = "Settings"
             # more tabs go here ---------------
@@ -204,7 +205,7 @@ while running:
 
     # tabs
     TEMPLATE_TAB.render(screen, body)
-    EMPTY_TAB.render(screen, body)
+    BEHAVIOR_TAB.render(screen, body)
     SETTINGS_TAB.render(screen, body)
 
     # grid buttons

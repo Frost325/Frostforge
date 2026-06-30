@@ -135,7 +135,7 @@ class TemplatesPage(Page):
             case "circle":
                 pygame.draw.circle(screen, self.templates[self.selected_template].color, self.sample.center, min(self.sample.width, self.sample.height) //2)
             case _:
-                pygame.draw.rect(screen, (255, 0, 0), self.sample) # Invalid Shape -- Draw Big Red Box
+                pygame.draw.rect(screen, RED, self.sample) # Invalid Shape -- Draw Big Red Box
 
     def handle_click(self, pos, SELECTED_TEMPLATE):
         super().handle_click(pos)
