@@ -32,6 +32,13 @@ class Button:
     
     def is_clicked(self, mouse_pos):
         return self.rect.collidepoint(mouse_pos)
+    
+    def move(self, rect):
+        self.rect = rect
+        self.x = rect.x
+        self.y = rect.y
+        self.width = rect.width
+        self.height = rect.height
 
 class Dropdown:
     def __init__(self, x, y, width, height, color, hover_color, options, selected=None, text_color=BLACK):
@@ -52,6 +59,9 @@ class Dropdown:
             button = Button(x, button_y, width, height, option, color, hover_color)
             self.buttons.append(button)
             button_y += height
+        self.scroll = 0
+        self.button_rects = [pygame.Rect(x, y + height, width, height), pygame.Rect(x, y + 2 * height, width, height), pygame.Rect(x, y + 3 * height, width, height)]
+        self.scroll_rect = pygame.Rect(x, y + height, width, 3 * height)
     
     def render(self, screen, font):
         pygame.draw.rect(screen, self.color, self.rect)
@@ -71,8 +81,22 @@ class Dropdown:
 
         # draw dropdown if open
         if self.open:
-            for button in self.buttons:
-                button.render(screen, font)
+            if len(self.buttons) < 4:
+                for button in self.buttons:
+                    button.render(screen, font)
+            else:
+                for i, button in enumerate(self.buttons[self.scroll:self.scroll + 3]):
+                    button.move(self.button_rects[i])
+                    button.render(screen, font)
+                arrow_size = self.height // 6
+                cx = self.rect.right - self.height // 2
+                if self.scroll > 0:
+                    cy = self.button_rects[0].centery
+                    pygame.draw.polygon(screen, self.text_color, [(cx - arrow_size, cy + arrow_size), (cx, cy - arrow_size), (cx + arrow_size, cy + arrow_size)])
+                if self.scroll < len(self.buttons) - 3:
+                    cy = self.button_rects[2].centery
+                    pygame.draw.polygon(screen, self.text_color, [(cx - arrow_size, cy - arrow_size), (cx + arrow_size, cy - arrow_size), (cx, cy + arrow_size)])
+
 
     def is_clicked(self, mouse_pos):
         if self.rect.collidepoint(mouse_pos):
@@ -85,10 +109,24 @@ class Dropdown:
                     self.selected = button.text
             # close the menu - even if one of the options wasn't clicked, means click was elsewhere
             self.open = False
+        return self.selected, self.open # return open so we can prevent things underneath from being clicked
+    
+    def set_options(self, options):
+        self.options = options
+        self.buttons = []
+        button_y = self.y + self.height
+        for option in options:
+            button = Button(self.x, button_y, self.width, self.height, option, self.color, self.hover_color)
+            self.buttons.append(button)
+            button_y += self.height
+        self.scroll = 0
 
-            # MAYBE CHECK HERE TO PREVENT THINGS UNDERNEATH FROM BEING CLICKED???
-        return self.selected
-
+    def is_scrolled(self, mouse_pos, scroll_up):
+        if self.scroll_rect.collidepoint(mouse_pos):
+            if scroll_up:
+                self.scroll = max(self.scroll - 1, 0)
+            else:
+                self.scroll = min(self.scroll + 1, len(self.buttons) - 3)
 
 class Page: # tab or page for eventual tabbed menu
     def __init__(self, x, y, width, height, body, title, border):
@@ -103,10 +141,13 @@ class Page: # tab or page for eventual tabbed menu
     def render(self, screen):
         pass
 
-    def handle_click(self, pos):
+    def handle_click(self, mouse_pos):
         pass
 
     def handle_key(self, event):
+        pass
+
+    def handle_scroll(self, mouse_pos, scroll_up):
         pass
 
 class Textbox:
@@ -137,8 +178,8 @@ class Textbox:
         screen.blit(text_surface, text_rect)
         # ADD FOCUS LINE???
 
-    def is_clicked(self, pos):
-        if self.rect.collidepoint(pos):
+    def is_clicked(self, mouse_pos):
+        if self.rect.collidepoint(mouse_pos):
             self.active = True
         else:
             if self.active:
@@ -202,3 +243,28 @@ class Cycle():
     
     def get_selected(self):
         return self.options[self.selected]
+
+class Checkbox():
+    def __init__(self, x, y, width, height, color, hover_color, text_color=BLACK):
+        self.rect = pygame.Rect(x, y, width, height)
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.button = Button(x, y, width, height, "X", color, hover_color, text_color)
+        self.checked = True
+
+    def render(self, screen, font):
+        self.button.render(screen, font)
+    
+    def is_clicked(self, mouse_pos):
+        if self.button.is_clicked(mouse_pos):
+            self.checked = not self.checked
+            self.button.text = "X" if self.checked else ""
+    
+    def get_state(self):
+        return self.checked
+    
+    def set_state(self, state):
+        self.checked = state
+        self.button.text = "X" if self.checked else ""

@@ -24,7 +24,8 @@ class GameObject:
         # add here render image, or draw picture
 
 class Template:
-    def __init__(self, name="", image=None, shape="rect", size=100, color=BLACK):
+    def __init__(self, id, name="", image=None, shape="rect", size=100, color=BLACK):
+        self.id = id
         self.name = name
         self.image = image
         self.shape = shape

@@ -1,5 +1,5 @@
 import pygame
-from backend.ui import Button, Dropdown, Page, Textbox, Cycle
+from backend.ui import Button, Dropdown, Page, Textbox, Cycle, Checkbox
 from backend.objects import Template
 from backend.colors import *
 
@@ -14,11 +14,11 @@ class BehaviorPage(Page):
         # AGENT
         self.agent_title = title.render("Agent", True, FROST_BLUE)
         self.agent_template = body.render("Template:", True, FROST_BLUE)
-        self.agent_dropdown = Dropdown(x + 3 * border + self.agent_template.get_width(), y + border + self.agent_title.get_height() + self.vertical_gap, self.button_width, self.button_height, ICE_BLUE, FROST_BLUE, templates.keys())
+        self.agent_dropdown = Dropdown(x + 3 * border + self.agent_template.get_width(), y + border + self.agent_title.get_height() + self.vertical_gap, self.button_width, self.button_height, ICE_BLUE, FROST_BLUE, [template.name for template in templates.values()])
         self.action_space = body.render("Action Space:", True, FROST_BLUE)
-        self.action_cycle = Cycle(x + 3 * border + self.action_space.get_width(), self.agent_dropdown.rect.bottom + self.vertical_gap, self.button_width, self.button_height, ICE_BLUE, FROST_BLUE, ["Orthogonal", "Omnidirectional"])
+        self.action_cycle = Cycle(x + 3 * border + self.action_space.get_width(), self.agent_dropdown.rect.bottom + self.vertical_gap, self.button_width * 1.2, self.button_height, ICE_BLUE, FROST_BLUE, ["Orthogonal", "Omnidirectional"])
         self.allow_stay = body.render("Allow Stay", True, FROST_BLUE )
-        self.stay_checkbox = Button(x + 2 * border, self.action_cycle.rect.bottom + self.vertical_gap, self.button_height, self.button_height, "X", ICE_BLUE, FROST_BLUE)
+        self.stay_checkbox = Checkbox(x + 2 * border, self.action_cycle.rect.bottom + self.vertical_gap, self.button_height, self.button_height, ICE_BLUE, FROST_BLUE)
         self.agent_underline = pygame.Rect(x + border, self.stay_checkbox.rect.bottom + border, width - 2 * border, border // 10)
 
 
@@ -27,20 +27,38 @@ class BehaviorPage(Page):
 
         # AGENT
         screen.blit(self.agent_title, (self.x + self.border, self.y + self.border))
-        self.agent_dropdown.render(screen, self.body)
         screen.blit(self.agent_template, (self.x + 2 * self.border, self.agent_dropdown.rect.centery - self.agent_template.get_height() // 2))
         self.action_cycle.render(screen, self.body)
         screen.blit(self.action_space, (self.x + 2 * self.border, self.action_cycle.rect.centery - self.action_space.get_height() // 2))
-        self.stay_checkbox.render(screen, self.body)
+        self.stay_checkbox.render(screen, self.title)
         screen.blit(self.allow_stay, (self.stay_checkbox.rect.right + self.border, self.stay_checkbox.rect.centery - self.allow_stay.get_height() // 2))
+        self.agent_dropdown.render(screen, self.body) # render dropdown last in case its open
         pygame.draw.rect(screen, PURPLE, self.agent_underline)
     
-    def handle_click(self, pos):
-        return super().handle_click(pos)
+    def handle_click(self, pos, templates):
+        super().handle_click(pos)
+
+        # AGENT
+        agent_name, open = self.agent_dropdown.is_clicked(pos) # FINSIH DO SMTH WITH OPEN TO CHECK UNDERNEAT HBOXEXZS
+        if not open:
+            self.agent_dropdown.set_options([template.name for template in templates.values()])
+            self.action_cycle.is_clicked(pos)
+        agent_movement = self.action_cycle.get_selected()
+        self.stay_checkbox.is_clicked(pos)
+        for template in templates.values():
+            if agent_name == template.name:
+                agent_id = template.id
+                break
+
+        return agent_id, agent_movement, self.stay_checkbox.get_state()
     
     def handle_key(self, event):
         return super().handle_key(event)
+    
+    def handle_scroll(self, mouse_pos, scroll_up):
+        super().handle_scroll(mouse_pos, scroll_up)
 
+        self.agent_dropdown.is_scrolled(mouse_pos, scroll_up)
 
 
 # THIS PAGE IS WHERE THE BEHAVIOR OF TEMPLATES AND THE AGENT WILL BE DEFINED

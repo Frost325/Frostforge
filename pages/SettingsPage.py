@@ -1,5 +1,5 @@
 import pygame
-from backend.ui import Button, Dropdown, Page, Textbox
+from backend.ui import Button, Dropdown, Page, Textbox, Checkbox
 from backend.objects import Template
 from backend.colors import *
 
@@ -53,7 +53,7 @@ class SettingsPage(Page):
 
         # show grid lines
         self.show_lines_text = body.render("Show Grid Lines:", True, FROST_BLUE)
-        self.show_lines = Button(x + 3 * border + self.show_lines_text.get_width(), self.image_button.y + self.button_height + self.vertical_gap, self.button_height, self.button_height, "X", ICE_BLUE, FROST_BLUE)
+        self.show_lines = Checkbox(x + 3 * border + self.show_lines_text.get_width(), self.image_button.y + self.button_height + self.vertical_gap, self.button_height, self.button_height, ICE_BLUE, FROST_BLUE)
 
         # underline
         self.grid_underline = pygame.Rect(x + border, self.show_lines.y + self.button_height + border, width - 2 * border, border // 10)
@@ -178,10 +178,8 @@ class SettingsPage(Page):
             new_line_color = self.line_color
 
         # show lines checkbox button
-        show = True if self.show_lines.text == "X" else False
-        if self.show_lines.is_clicked(pos):
-            show = not show
-            self.show_lines.text = "X" if show else ""
+        self.show_lines.is_clicked(pos)
+        show = self.show_lines.get_state()
 
         # New Stuff Put Here
 
@@ -233,6 +231,9 @@ class SettingsPage(Page):
             self.update()
 
         return new_background_color, new_line_color
+    
+    def handle_scroll(self, scroll_up):
+        return super().handle_scroll(scroll_up)
 
     def update(self):
         self.background_red_box.text = str(self.background_color[0])
@@ -250,4 +251,4 @@ class SettingsPage(Page):
         self.background_color = background_color
         self.line_color = line_color
         self.update()
-        self.show_lines.text = "X" if show_lines else ""
+        self.show_lines.set_state(show_lines)

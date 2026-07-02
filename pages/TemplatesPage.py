@@ -4,7 +4,7 @@ from backend.objects import Template
 from backend.colors import *
 
 class TemplatesPage(Page):
-    def __init__(self, x, y, width, height, body, title, border, templates, selected_template="Blank"):
+    def __init__(self, x, y, width, height, body, title, border, templates, selected_template=0):
         super().__init__(x, y, width, height, body, title, border)
 
         # TEMPLATE SELECTION
@@ -23,8 +23,8 @@ class TemplatesPage(Page):
         self.button_y = self.header_underline.y + self.header_underline.height
         self.button_width = self.template_list.width
         self.button_height = (self.header_underline.y - y) * 3 // 4
-        for name in templates.keys():
-            button = Button(x, self.button_y, self.template_list.width, self.button_height, name, ICE_BLUE, FROST_BLUE)
+        for template in templates.values():
+            button = Button(x, self.button_y, self.template_list.width, self.button_height, template.name, ICE_BLUE, FROST_BLUE)
             self.template_buttons.append(button)
             self.button_y += self.button_height
         
@@ -32,7 +32,7 @@ class TemplatesPage(Page):
         self.new_template = Button(x, 2 * y + height - self.header_underline.y, self.template_list.width, self.header_underline.y - y, "New Template", SLATE_GRAY, SILVER)
         self.new_template_overline = pygame.Rect(x, self.new_template.y - self.header_underline.height, self.template_list.width, self.header_underline.height)
 
-        # TEMPALTE PROPERTIES PANEL --- REPOSITION EVERYTHING ONCE IT ALL EXISTS
+        # TEMPALTE PROPERTIES PANEL
 
         # cords
         self.text_x = self.right_border.x + self.right_border.width + border
@@ -40,9 +40,9 @@ class TemplatesPage(Page):
         self.text_y = y + self.text_gap
 
         # name
-        self.properties_title = title.render(f"{self.selected_template} Properties", True, FROST_BLUE) # gap 0
+        self.properties_title = title.render(f"{self.templates[self.selected_template].name} Properties", True, FROST_BLUE) # gap 0
         self.name_text = body.render("Name:", True, FROST_BLUE)
-        self.name_box = Textbox(self.text_x + self.name_text.get_width() + border, self.text_y + self.properties_title.get_height() + self.text_gap, self.button_width, self.button_height, ICE_BLUE, FROST_BLUE, self.selected_template, size_limit=10)
+        self.name_box = Textbox(self.text_x + self.name_text.get_width() + border, self.text_y + self.properties_title.get_height() + self.text_gap, self.button_width, self.button_height, ICE_BLUE, FROST_BLUE, self.templates[self.selected_template].name, size_limit=10)
 
         # image
         self.image_text = body.render("Image:", True, FROST_BLUE)
@@ -87,7 +87,7 @@ class TemplatesPage(Page):
 
         # template buttons
         for button in self.template_buttons:
-            button.render(screen, self.body, self.selected_template == button.text)
+            button.render(screen, self.body, self.templates[self.selected_template].name == button.text)
 
         # new template
         self.new_template.render(screen, self.body)
@@ -141,19 +141,19 @@ class TemplatesPage(Page):
         super().handle_click(pos)
 
         # check for template button clicks
-        for button in self.template_buttons:
+        for i, button in enumerate(self.template_buttons):
             if button.is_clicked(pos):
-                SELECTED_TEMPLATE = button.text
+                SELECTED_TEMPLATE = i
                 self.selected_template = SELECTED_TEMPLATE
                 self.update(SELECTED_TEMPLATE)
 
         # create new blank template: "Blank X"
         if self.new_template.is_clicked(pos) and len(self.templates) < 16: # Eventually support more than 16 !!!
-            SELECTED_TEMPLATE = f"Blank {len(self.templates)}"
-            self.templates[SELECTED_TEMPLATE] = Template(name=SELECTED_TEMPLATE)
+            SELECTED_TEMPLATE = len(self.templates)
+            self.templates[SELECTED_TEMPLATE] = Template(SELECTED_TEMPLATE, name=f"Blank {len(self.templates)}")
             self.selected_template = SELECTED_TEMPLATE
             # create new button
-            button = Button(self.x, self.button_y, self.button_width, self.button_height, SELECTED_TEMPLATE, ICE_BLUE, FROST_BLUE)
+            button = Button(self.x, self.button_y, self.button_width, self.button_height, f"Blank {SELECTED_TEMPLATE}", ICE_BLUE, FROST_BLUE)
             self.template_buttons.append(button)
             self.button_y += self.button_height
             self.update(SELECTED_TEMPLATE)
@@ -164,19 +164,16 @@ class TemplatesPage(Page):
         if self.name_box.is_clicked(pos): # if True, means box is inactive, can update template name
             NEW_NAME = self.name_box.text
             self.templates[SELECTED_TEMPLATE].name = NEW_NAME
-            self.templates[NEW_NAME] = self.templates.pop(SELECTED_TEMPLATE)
             # update template button
-            for button in self.template_buttons:
-                if button.text == SELECTED_TEMPLATE:
+            for i, button in enumerate(self.template_buttons):
+                if SELECTED_TEMPLATE == i:
                     button.text = NEW_NAME
-            SELECTED_TEMPLATE = NEW_NAME # FINISH SOME WAY TO UPDATE GRID
-            self.selected_template = SELECTED_TEMPLATE
-            self.properties_title = self.title.render(f"{self.selected_template} Properties", True, FROST_BLUE)
+            self.properties_title = self.title.render(f"{self.templates[self.selected_template].name} Properties", True, FROST_BLUE)
 
         # image -- coming soon
 
         # shape dropdown
-        self.templates[self.selected_template].shape = self.shape_drop.is_clicked(pos)
+        self.templates[self.selected_template].shape, open = self.shape_drop.is_clicked(pos) # FINISH DO SMTH WITH OPEN TO CHECK FOR UNDERNEATH BOXES
 
         # color boxes
         (r, g, b) = self.templates[SELECTED_TEMPLATE].color
@@ -217,14 +214,11 @@ class TemplatesPage(Page):
         if self.name_box.key_pressed(event): # if True, means box is inactive, can update template name
             NEW_NAME = self.name_box.text
             self.templates[SELECTED_TEMPLATE].name = NEW_NAME
-            self.templates[NEW_NAME] = self.templates.pop(SELECTED_TEMPLATE)
             # update template button
-            for button in self.template_buttons:
-                if button.text == SELECTED_TEMPLATE:
+            for i, button in enumerate(self.template_buttons):
+                if SELECTED_TEMPLATE == i:
                     button.text = NEW_NAME
-            SELECTED_TEMPLATE = NEW_NAME # FINISH SOME WAY TO UPDATE GRID
-            self.selected_template = SELECTED_TEMPLATE
-            self.properties_title = self.title.render(f"{self.selected_template} Properties", True, FROST_BLUE)
+            self.properties_title = self.title.render(f"{self.templates[self.selected_template].name} Properties", True, FROST_BLUE)
         
         # color
         (r, g, b) = self.templates[SELECTED_TEMPLATE].color
@@ -246,6 +240,11 @@ class TemplatesPage(Page):
             self.update(SELECTED_TEMPLATE)
 
         return self.templates, SELECTED_TEMPLATE
+    
+    def handle_scroll(self, mouse_pos, scroll_up):
+        super().handle_scroll(mouse_pos, scroll_up)
+
+        self.shape_drop.is_scrolled(mouse_pos, scroll_up)
 
     # update properties to show current template
     def update(self, template):

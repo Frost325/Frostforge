@@ -81,11 +81,11 @@ SELECTED = None # (X, Y)
 
 # Templates
 TEMPLATES = {}
-SELECTED_TEMPLATE = "Blank" # current selected template for placing
+SELECTED_TEMPLATE = 0 # current selected template for placing
 
 # Blank/Default Template
-TEMPLATES["Blank"] = Template("Blank")
-TEMPLATES["Wall"] = Template("Wall", color=PURPLE)
+TEMPLATES[0] = Template(0, "Blank")
+TEMPLATES[1] = Template(1, "Wall", color=PURPLE)
 
 # Pages
 PAGE_X = BORDER + LEFT_PANEL_BORDER
@@ -110,72 +110,80 @@ while running:
         if event.type == pygame.MOUSEBUTTONDOWN:
             MOUSE_X, MOUSE_Y = pygame.mouse.get_pos()
 
-            # if mouse is within visual, update selected
-            if MOUSE_X >= VISUAL_X + VISUAL_BORDER_SIZE and MOUSE_X <= VISUAL_X + VISUAL_DIM - VISUAL_BORDER_SIZE and MOUSE_Y >= VISUAL_Y + VISUAL_BORDER_SIZE and MOUSE_Y <= VISUAL_Y + VISUAL_DIM - VISUAL_BORDER_SIZE:
-                NEW_SELECTED = ((MOUSE_X - VISUAL_X - VISUAL_BORDER_SIZE) // CELL_SIZE, (MOUSE_Y - VISUAL_Y - VISUAL_BORDER_SIZE) // CELL_SIZE) # SELECTED = Cell (X, Y) -- X left to right, Y top to bottom
-                if NEW_SELECTED[0] >= GRID_WIDTH or NEW_SELECTED[0] < 0 or NEW_SELECTED[1] >= GRID_HEIGHT or NEW_SELECTED[1] < 0:
-                    SELECTED = None
-                elif SELECTED and NEW_SELECTED == SELECTED:
-                    SELECTED = None
+            if event.button == 1:
+                # if mouse is within visual, update selected
+                if MOUSE_X >= VISUAL_X + VISUAL_BORDER_SIZE and MOUSE_X <= VISUAL_X + VISUAL_DIM - VISUAL_BORDER_SIZE and MOUSE_Y >= VISUAL_Y + VISUAL_BORDER_SIZE and MOUSE_Y <= VISUAL_Y + VISUAL_DIM - VISUAL_BORDER_SIZE:
+                    NEW_SELECTED = ((MOUSE_X - VISUAL_X - VISUAL_BORDER_SIZE) // CELL_SIZE, (MOUSE_Y - VISUAL_Y - VISUAL_BORDER_SIZE) // CELL_SIZE) # SELECTED = Cell (X, Y) -- X left to right, Y top to bottom
+                    if NEW_SELECTED[0] >= GRID_WIDTH or NEW_SELECTED[0] < 0 or NEW_SELECTED[1] >= GRID_HEIGHT or NEW_SELECTED[1] < 0:
+                        SELECTED = None
+                    elif SELECTED and NEW_SELECTED == SELECTED:
+                        SELECTED = None
+                    else:
+                        SELECTED = NEW_SELECTED
+                
+                # if a tile is selected, check for button clicks
+                if SELECTED:
+                    x, y = SELECTED
+
+                    # place blank button clicked
+                    if PLACE.is_clicked(event.pos):
+                        GRID[y][x] = TEMPLATES[SELECTED_TEMPLATE]
+                        SELECTED = None
+                
+                    # place selected button clicked
+                    if DELETE.is_clicked(event.pos):
+                        GRID[y][x] = None
+                        SELECTED = None
+                
+                # save/load
+                if SAVE.is_clicked(event.pos):
+                    save(GRID, TEMPLATES, SELECTED_TEMPLATE, VISUAL_BACKGROUND_COLOR, CELL_COLOR, SHOW_LINES)
+                if LOAD.is_clicked(event.pos):
+                    GRID, TEMPLATES, SELECTED_TEMPLATE, GRID_WIDTH, GRID_HEIGHT, VISUAL_BACKGROUND_COLOR, CELL_COLOR, SHOW_LINES = load()
+                    PAGES["Templates"].load(TEMPLATES, SELECTED_TEMPLATE)
+                    PAGES["Settings"].load(GRID_WIDTH, GRID_HEIGHT, VISUAL_BACKGROUND_COLOR, CELL_COLOR, SHOW_LINES)
+
+                # export - COMING SOON
+                if EXPORT.is_clicked(event.pos):
+                    export(GRID, TEMPLATES, VISUAL_BACKGROUND_COLOR, CELL_COLOR, True)
+
+                # check for tab click
+                if TEMPLATE_TAB.is_clicked(event.pos):
+                    CURRENT_PAGE = "Templates"
+                if BEHAVIOR_TAB.is_clicked(event.pos):
+                    CURRENT_PAGE = "Behavior"
+                if SETTINGS_TAB.is_clicked(event.pos):
+                    CURRENT_PAGE = "Settings"
+                # more tabs go here ---------------
+
+                # click within page
+                if CURRENT_PAGE == "Templates":
+                    TEMPLATES, SELECTED_TEMPLATE = PAGES[CURRENT_PAGE].handle_click(event.pos, SELECTED_TEMPLATE)
+                elif CURRENT_PAGE == "Settings":
+                    NEW_WIDTH, NEW_HEIGHT, NEW_BACKGROUND_COLOR, NEW_LINE_COLOR, SHOW_LINES = PAGES[CURRENT_PAGE].handle_click(event.pos)
+                    # update settings
+                    if NEW_WIDTH or NEW_HEIGHT:
+                        GRID, GRID_WIDTH, GRID_HEIGHT = change_grid_size(GRID, NEW_WIDTH, NEW_HEIGHT)
+                        # update cells
+                        CELL_SIZE = (VISUAL_DIM - 2 * VISUAL_BORDER_SIZE) // max(GRID_WIDTH, GRID_HEIGHT)
+                        CELLS = []
+                        for row in range(GRID_HEIGHT):
+                            for col in range(GRID_WIDTH):
+                                CELLS.append(pygame.Rect(VISUAL_X + VISUAL_BORDER_SIZE + CELL_SIZE * col, VISUAL_Y + VISUAL_BORDER_SIZE + CELL_SIZE * row, CELL_SIZE, CELL_SIZE))
+
+                    if NEW_BACKGROUND_COLOR:
+                        VISUAL_BACKGROUND_COLOR = NEW_BACKGROUND_COLOR
+                    if NEW_LINE_COLOR:
+                        CELL_COLOR = NEW_LINE_COLOR
+                elif CURRENT_PAGE == "Behavior":
+                    PAGES[CURRENT_PAGE].handle_click(event.pos, TEMPLATES) # FINISH
                 else:
-                    SELECTED = NEW_SELECTED
+                    PAGES[CURRENT_PAGE].handle_click(event.pos) # add more pages as needed
             
-            # if a tile is selected, check for button clicks
-            if SELECTED:
-                x, y = SELECTED
-
-                # place blank button clicked
-                if PLACE.is_clicked(event.pos):
-                    GRID[y][x] = TEMPLATES[SELECTED_TEMPLATE]
-                    SELECTED = None
-            
-                # place selected button clicked
-                if DELETE.is_clicked(event.pos):
-                    GRID[y][x] = None
-                    SELECTED = None
-            
-            # save/load
-            if SAVE.is_clicked(event.pos):
-                save(GRID, TEMPLATES, SELECTED_TEMPLATE, VISUAL_BACKGROUND_COLOR, CELL_COLOR, SHOW_LINES)
-            if LOAD.is_clicked(event.pos):
-                GRID, TEMPLATES, SELECTED_TEMPLATE, GRID_WIDTH, GRID_HEIGHT, VISUAL_BACKGROUND_COLOR, CELL_COLOR, SHOW_LINES = load()
-                PAGES["Templates"].load(TEMPLATES, SELECTED_TEMPLATE)
-                PAGES["Settings"].load(GRID_WIDTH, GRID_HEIGHT, VISUAL_BACKGROUND_COLOR, CELL_COLOR, SHOW_LINES)
-
-            # export - COMING SOON
-            if EXPORT.is_clicked(event.pos):
-                export(GRID, TEMPLATES, VISUAL_BACKGROUND_COLOR, CELL_COLOR, True)
-
-            # check for tab click
-            if TEMPLATE_TAB.is_clicked(event.pos):
-                CURRENT_PAGE = "Templates"
-            if BEHAVIOR_TAB.is_clicked(event.pos):
-                CURRENT_PAGE = "Behavior"
-            if SETTINGS_TAB.is_clicked(event.pos):
-                CURRENT_PAGE = "Settings"
-            # more tabs go here ---------------
-
-            # click within page
-            if CURRENT_PAGE == "Templates":
-                TEMPLATES, SELECTED_TEMPLATE = PAGES[CURRENT_PAGE].handle_click(event.pos, SELECTED_TEMPLATE)
-            elif CURRENT_PAGE == "Settings":
-                NEW_WIDTH, NEW_HEIGHT, NEW_BACKGROUND_COLOR, NEW_LINE_COLOR, SHOW_LINES = PAGES[CURRENT_PAGE].handle_click(event.pos)
-                # update settings
-                if NEW_WIDTH or NEW_HEIGHT:
-                    GRID, GRID_WIDTH, GRID_HEIGHT = change_grid_size(GRID, NEW_WIDTH, NEW_HEIGHT)
-                    # update cells
-                    CELL_SIZE = (VISUAL_DIM - 2 * VISUAL_BORDER_SIZE) // max(GRID_WIDTH, GRID_HEIGHT)
-                    CELLS = []
-                    for row in range(GRID_HEIGHT):
-                        for col in range(GRID_WIDTH):
-                            CELLS.append(pygame.Rect(VISUAL_X + VISUAL_BORDER_SIZE + CELL_SIZE * col, VISUAL_Y + VISUAL_BORDER_SIZE + CELL_SIZE * row, CELL_SIZE, CELL_SIZE))
-
-                if NEW_BACKGROUND_COLOR:
-                    VISUAL_BACKGROUND_COLOR = NEW_BACKGROUND_COLOR
-                if NEW_LINE_COLOR:
-                    CELL_COLOR = NEW_LINE_COLOR
-            else:
-                PAGES[CURRENT_PAGE].handle_click(event.pos) # add more pages as needed
+            elif event.button == 4 or event.button == 5:
+                scroll_up = True if event.button == 4 else False
+                PAGES[CURRENT_PAGE].handle_scroll(event.pos, scroll_up)
+                # ADD SHIT HERE TO HANDLE SCROLLING
         
         # key pressed
         if event.type == pygame.KEYDOWN:
@@ -242,7 +250,7 @@ while running:
         properties = body.render(f"Cell: {SELECTED}   Template: {template_name}", True, FROST_BLUE)
         screen.blit(properties, (VISUAL_X + VISUAL_BORDER_SIZE, BORDER + BUTTON_HEIGHT + (BUTTON_HEIGHT + VISUAL_BORDER_SIZE - properties.get_height()) // 2))
     
-    placing = body.render(f"Placing: {SELECTED_TEMPLATE}", True, FROST_BLUE)
+    placing = body.render(f"Placing: {TEMPLATES[SELECTED_TEMPLATE].name}", True, FROST_BLUE)
     screen.blit(placing, (LOAD.x + VISUAL_BORDER_SIZE, BORDER + BUTTON_HEIGHT + (BUTTON_HEIGHT + VISUAL_BORDER_SIZE - placing.get_height()) // 2))
 
     pygame.display.flip()
